@@ -37,6 +37,7 @@ public class MusicPlayerDashboard  implements ActionListener  {
     private JEditorPane SelectedBox;
     private JPanel SelectedPanel;
     private JTextArea LryicsDisplay;
+    private JEditorPane MusicTime;
     private DefaultTableModel LibraryTableModel;
 
 
@@ -52,6 +53,7 @@ public class MusicPlayerDashboard  implements ActionListener  {
         public String title;
         public String Path;
         public String author;
+        public String duration;
     }
 
     public TargetMusic targetMusic = new TargetMusic();
@@ -89,6 +91,12 @@ public class MusicPlayerDashboard  implements ActionListener  {
         LryicsDisplay.setText(lrc);
     }
 
+    public String getMMSSTime(int ms) {
+        int min = ms / 1000 / 60;
+        int sec = ms / 1000 % 60;
+        return min + ":" + sec;
+    }
+
     public MusicPlayerDashboard() throws IOException {
         JFrame frame  = new JFrame("MusicPlayerDashboard");
         frame.setContentPane(this.MusicPlayer);
@@ -98,8 +106,6 @@ public class MusicPlayerDashboard  implements ActionListener  {
 
         StartButton.addActionListener(this);
         StopButton.addActionListener(this);
-
-
 
     }
 
@@ -117,7 +123,7 @@ public class MusicPlayerDashboard  implements ActionListener  {
 
                 // Set the maximum value of the progress bar to the length of the audio file
                 MusicProgressBar.setMaximum((int) clip.getMicrosecondLength() / 1000);
-                System.out.println("SSS");
+
                 // Create a SwingWorker to play the audio and update the progress bar in the background
                 SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
 
@@ -138,7 +144,11 @@ public class MusicPlayerDashboard  implements ActionListener  {
                         // Update the progress bar on the EDT
                         int latestPosition = chunks.get(chunks.size() - 1);
                         MusicProgressBar.setValue(latestPosition);
+                        String endTime= getMMSSTime((int) clip.getMicrosecondLength() / 1000);
+                        String startTime = getMMSSTime(latestPosition);
+                        MusicTime.setText(startTime + " / " + endTime);
                         System.out.println(latestPosition);
+
                     }
                 };
 
@@ -151,6 +161,7 @@ public class MusicPlayerDashboard  implements ActionListener  {
             clip.stop();
             clip.close();
             MusicProgressBar.setValue(0);
+            MusicTime.setText("0 / " + clip.getMicrosecondLength() / 1000);
         }
     }
 
@@ -202,8 +213,10 @@ public class MusicPlayerDashboard  implements ActionListener  {
 
                     TargetMusic targetMusic = new TargetMusic();
                     targetMusic.title = LibraryTable.getValueAt(LibraryTable.getSelectedRow(), 0).toString();
-                    targetMusic.Path = LibraryTable.getValueAt(LibraryTable.getSelectedRow(), 6).toString();
+                    targetMusic.duration = LibraryTable.getValueAt(LibraryTable.getSelectedRow(), 1).toString();
                     targetMusic.author = LibraryTable.getValueAt(LibraryTable.getSelectedRow(), 2).toString();
+                    targetMusic.Path = LibraryTable.getValueAt(LibraryTable.getSelectedRow(), 6).toString();
+
 
                     setTargetMusic(targetMusic);
                     // set the selected data to the JEditorPane
@@ -241,7 +254,7 @@ public class MusicPlayerDashboard  implements ActionListener  {
         LryicsDisplay.setText("LryicsDisplay");
         LryicsDisplay.setEditable(false);
 
-//        MusicProgressBar = new JProgressBar();
+
 
 
 
