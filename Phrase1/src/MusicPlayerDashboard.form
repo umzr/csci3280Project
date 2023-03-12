@@ -60,7 +60,7 @@
               </scrollpane>
             </children>
           </grid>
-          <grid id="5313" binding="LibraryTab" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="5313" binding="LibraryTab" layout-manager="GridLayoutManager" row-count="3" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Library"/>
@@ -70,7 +70,7 @@
             <children>
               <component id="7c564" class="javax.swing.JButton" binding="SYNCButton" custom-create="true" default-binding="true">
                 <constraints>
-                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text value="SYNC!"/>
@@ -78,7 +78,7 @@
               </component>
               <component id="a3133" class="javax.swing.JTextField" binding="SyncMessage">
                 <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                  <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
@@ -90,7 +90,7 @@
               </component>
               <scrollpane id="64a1" binding="LibraryScroll">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
                 <border type="none"/>
@@ -101,6 +101,26 @@
                   </component>
                 </children>
               </scrollpane>
+              <component id="577c0" class="javax.swing.JButton" binding="SearchButton" custom-create="true">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Button"/>
+                </properties>
+              </component>
+              <component id="53405" class="javax.swing.JTextField" binding="SearchText" custom-create="true">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <editable value="true"/>
+                  <enabled value="true"/>
+                  <text value="Can't see your Song?"/>
+                </properties>
+              </component>
             </children>
           </grid>
           <grid id="16574" binding="SearchTab" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -129,7 +149,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="996a4" class="javax.swing.JTextArea" binding="textArea1" default-binding="true">
+              <component id="996a4" class="javax.swing.JTextArea" binding="MusicInfo">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="50"/>

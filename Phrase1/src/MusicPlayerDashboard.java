@@ -5,6 +5,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -25,7 +27,7 @@ public class MusicPlayerDashboard  implements ActionListener  {
     private JButton StopButton;
     private JSlider Volumn;
     private JProgressBar MusicProgressBar;
-    private JTextArea textArea1;
+    private JTextArea MusicInfo;
     private JTextPane textPane1;
     private JTable LibraryTable;
     private JPanel MusicPlayer;
@@ -38,6 +40,8 @@ public class MusicPlayerDashboard  implements ActionListener  {
     private JPanel SelectedPanel;
     private JTextArea LryicsDisplay;
     private JEditorPane MusicTime;
+    private JButton SearchButton;
+    private JTextField SearchText;
     private DefaultTableModel LibraryTableModel;
 
 
@@ -254,6 +258,32 @@ public class MusicPlayerDashboard  implements ActionListener  {
         LryicsDisplay.setText("LryicsDisplay");
         LryicsDisplay.setEditable(false);
 
+          SearchButton = new JButton("Search");
+        SearchText = new JTextField("Search Here");
+
+        SearchButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String searchText = SearchText.getText();
+                TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(LibraryTable.getModel());
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchText));
+                LibraryTable.setRowSorter(sorter);
+            }
+        });
+
+//        SearchButton.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                String searchText = SearchText.getText();
+//                for (int i = 0; i < LibraryTable.getRowCount(); i++) {
+//                    for (int j = 0; j < LibraryTable.getColumnCount(); j++) {
+//                        if (LibraryTable.getValueAt(i, j).toString().contains(searchText)) {
+//                            // highlight or select row
+//                            LibraryTable.setRowSelectionInterval(i, i);
+//                            return;
+//                        }
+//                    }
+//                }
+//            }
+//        });
 
 
 
