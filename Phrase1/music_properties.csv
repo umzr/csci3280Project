@@ -1,0 +1,4 @@
+title, duration, artist, album, genre, year, path, comment, channels, rate, bits, LRC
+香港料理.wav, 226, null, null, null, null, /Users/icerxm/IdeaProjects/MusicPlayerNew/./src/Album/香港料理.wav, null, 2, 44100.0, 16, true
+香港料理dd.wav, 226, null, null, null, null, /Users/icerxm/IdeaProjects/MusicPlayerNew/./src/Album/香港料理dd.wav, null, 2, 44100.0, 16, true
+file_example.wav, 58, null, null, null, null, /Users/icerxm/IdeaProjects/MusicPlayerNew/./src/Album/file_example.wav, null, 2, 44100.0, 16, false
