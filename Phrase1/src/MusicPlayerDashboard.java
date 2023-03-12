@@ -42,6 +42,8 @@ public class MusicPlayerDashboard  implements ActionListener  {
     private JEditorPane MusicTime;
     private JButton SearchButton;
     private JTextField SearchText;
+    private JFormattedTextField LryicsRealtimeText;
+    private JLabel LryicsRealtimeLabel;
     private DefaultTableModel LibraryTableModel;
 
 
@@ -78,6 +80,22 @@ public class MusicPlayerDashboard  implements ActionListener  {
             LibraryTableModel.addRow(values);
         }
         br.close();
+    }
+
+    public LrcFileReader.LrcLine getLrcLine(int ms) throws IOException {  // get the lrc line
+        String lrcPath = targetMusic.Path.replace(".wav", ".lrc");
+
+        LrcFileReader reader = new LrcFileReader(lrcPath);
+
+        LrcFileReader.LrcLine prevLine = null;
+
+        for(LrcFileReader.LrcLine line : reader.getLrcLines()){
+            if(line.getTimestamp() > ms){
+                return prevLine;
+            }
+            prevLine = line;
+        }
+        return null;
     }
 
     public void getlrcLines() throws IOException {  // get the lrc lines
@@ -145,13 +163,23 @@ public class MusicPlayerDashboard  implements ActionListener  {
 
                     @Override
                     protected void process(List<Integer> chunks) {
-                        // Update the progress bar on the EDT
+                        // Update the progress bar on the EDT;
                         int latestPosition = chunks.get(chunks.size() - 1);
                         MusicProgressBar.setValue(latestPosition);
                         String endTime= getMMSSTime((int) clip.getMicrosecondLength() / 1000);
                         String startTime = getMMSSTime(latestPosition);
                         MusicTime.setText(startTime + " / " + endTime);
                         System.out.println(latestPosition);
+
+                        try {
+                            LrcFileReader.LrcLine lrcLine = getLrcLine(latestPosition);
+                            if (lrcLine != null) {
+                                LryicsRealtimeText.setText(lrcLine.getLyrics());
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            LryicsRealtimeText.setText("NONE! no lrc file");
+                        }
 
                     }
                 };
@@ -270,11 +298,6 @@ public class MusicPlayerDashboard  implements ActionListener  {
                 LibraryTable.setRowSorter(sorter);
             }
         });
-
-
-
-
-
 
     }
 }
