@@ -161,7 +161,7 @@ public class MusicPlayerDashboard  implements ActionListener  {
             clip.stop();
             clip.close();
             MusicProgressBar.setValue(0);
-            MusicTime.setText("0 / " + clip.getMicrosecondLength() / 1000);
+            MusicTime.setText("0:0 / 0:0");
         }
     }
 
