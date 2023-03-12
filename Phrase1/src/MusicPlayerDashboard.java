@@ -160,6 +160,7 @@ public class MusicPlayerDashboard  implements ActionListener  {
 
             } catch (Exception e) {
                 e.printStackTrace();
+                SelectedBox.setText("NONE! no music in the list (information Display)");
             }
         } else if (event.getSource() == StopButton) {
             clip.stop();
@@ -270,20 +271,7 @@ public class MusicPlayerDashboard  implements ActionListener  {
             }
         });
 
-//        SearchButton.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                String searchText = SearchText.getText();
-//                for (int i = 0; i < LibraryTable.getRowCount(); i++) {
-//                    for (int j = 0; j < LibraryTable.getColumnCount(); j++) {
-//                        if (LibraryTable.getValueAt(i, j).toString().contains(searchText)) {
-//                            // highlight or select row
-//                            LibraryTable.setRowSelectionInterval(i, i);
-//                            return;
-//                        }
-//                    }
-//                }
-//            }
-//        });
+
 
 
 
