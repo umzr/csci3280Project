@@ -1,6 +1,7 @@
 package networking;
 
 import networking.packet.Packet;
+import networking.packet.Packets;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -74,6 +75,7 @@ public class Session {
         if(readBytes == -1){
             // receiving -1 here means that the stream os reach the end. we can disconnect now
             //TODO disconnection
+            clientChannel.close();
         }
         int remainingPacketLength = 0;
         if(pendingIncomingBuffer != null){
@@ -101,7 +103,10 @@ public class Session {
             packetBuffers.add(new PacketBuffer(pendingIncomingBuffer));
         }
         for (PacketBuffer buffer : packetBuffers) {
-
+            int packetId = buffer.getInt();
+            Packet packet = Packets.create(packetId);
+            packet.read(buffer);
+            //TODO handle packet
         }
     }
 
@@ -114,8 +119,9 @@ public class Session {
         packet.write(packetBuffer);
         packetBuffer.getByteBuffer().flip();
         int limit = packetBuffer.getByteBuffer().limit();
-        ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + limit);
-        buf.putInt(limit);
+        ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES * 2 + limit);
+        buf.putInt(limit + Integer.BYTES);
+        buf.putInt(Packets.getId(packet.getClass()));
         buf.put(packetBuffer.getByteBuffer());
         buf.flip();
         pendingOutgoingBuffer.add(buf);

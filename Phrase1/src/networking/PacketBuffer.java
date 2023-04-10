@@ -25,6 +25,9 @@ public class PacketBuffer {
     public byte get(){
         return backendBuffer.get();
     }
+    public void get(byte[] buf, int offset, int len){
+        backendBuffer.get(buf, offset, len);
+    }
     public short getShort(){
         return backendBuffer.getShort();
     }
@@ -49,12 +52,18 @@ public class PacketBuffer {
         return new String(charArray);
     }
 
-    private void requestLargerBuffer(){
+    private void requestLargerBuffer(int requiredLength){
         int currentSize = backendBuffer.capacity();
         if (currentSize >= MAX_CAPACITY_SIZE){
             throw new IllegalStateException("hit max capacity size");
         }
         int newSize = Math.min(currentSize * 2, MAX_CAPACITY_SIZE);
+        while (newSize < currentSize + requiredLength - backendBuffer.remaining()){
+            if (newSize >= MAX_CAPACITY_SIZE){
+                throw new IllegalStateException("hit max capacity size");
+            }
+            newSize = Math.min(newSize * 2, MAX_CAPACITY_SIZE);
+        }
         ByteBuffer newBuffer = ByteBuffer.allocate(newSize);
         backendBuffer.flip();
         newBuffer.put(backendBuffer);
@@ -63,7 +72,7 @@ public class PacketBuffer {
 
     public PacketBuffer putInt(int v){
         if(backendBuffer.remaining() < Integer.BYTES){
-            requestLargerBuffer();
+            requestLargerBuffer(Integer.BYTES);
         }
         backendBuffer.putInt(v);
         return this;
@@ -71,15 +80,24 @@ public class PacketBuffer {
 
     public PacketBuffer put(byte v){
         if(backendBuffer.remaining() < Byte.BYTES){
-            requestLargerBuffer();
+            requestLargerBuffer(Byte.BYTES);
         }
         backendBuffer.put(v);
         return this;
     }
 
+    public PacketBuffer put(byte[] v, int offset, int len){
+        var requestLength = Byte.BYTES * (len - offset);
+        if(backendBuffer.remaining() < requestLength){
+            requestLargerBuffer(requestLength);
+        }
+        backendBuffer.put(v, offset, len);
+        return this;
+    }
+
     public PacketBuffer putShort(short v){
         if(backendBuffer.remaining() < Short.BYTES){
-            requestLargerBuffer();
+            requestLargerBuffer(Short.BYTES);
         }
         backendBuffer.putShort(v);
         return this;
@@ -87,7 +105,7 @@ public class PacketBuffer {
 
     public PacketBuffer putLong(long v){
         if(backendBuffer.remaining() < Long.BYTES){
-            requestLargerBuffer();
+            requestLargerBuffer(Long.BYTES);
         }
         backendBuffer.putLong(v);
         return this;
@@ -95,14 +113,14 @@ public class PacketBuffer {
 
     public PacketBuffer putChar(char v){
         if(backendBuffer.remaining() < Character.BYTES){
-            requestLargerBuffer();
+            requestLargerBuffer(Character.BYTES);
         }
         backendBuffer.putChar(v);
         return this;
     }
     public PacketBuffer putFloat(float v){
         if(backendBuffer.remaining() < Float.BYTES){
-            requestLargerBuffer();
+            requestLargerBuffer(Float.BYTES);
         }
         backendBuffer.putFloat(v);
         return this;
@@ -110,15 +128,16 @@ public class PacketBuffer {
 
     public PacketBuffer getDouble(double v){
         if(backendBuffer.remaining() < Double.BYTES){
-            requestLargerBuffer();
+            requestLargerBuffer(Double.BYTES);
         }
         backendBuffer.putDouble(v);
         return this;
     }
 
     public PacketBuffer putString(String string){
-        if(backendBuffer.remaining() < Integer.BYTES + Character.BYTES * string.length()){
-            requestLargerBuffer();
+        var requiredLength = Integer.BYTES + Character.BYTES * string.length();
+        if(backendBuffer.remaining() < requiredLength){
+            requestLargerBuffer(requiredLength);
         }
         backendBuffer.putInt(string.length());
         for (char c : string.toCharArray()) {
