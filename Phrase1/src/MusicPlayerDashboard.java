@@ -1,3 +1,6 @@
+import music.MusicManager;
+import music.MusicProperty;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -78,7 +81,7 @@ public class MusicPlayerDashboard implements ActionListener {
 
     public void loadLibraryTable() {
         LibraryTableModel.setRowCount(0);
-        for (MusicManager.MusicProperty musicProperty : musicManager.getMusicInfo()) {
+        for (MusicProperty musicProperty : musicManager.getMusicInfo()) {
             LibraryTableModel.addRow(new Object[]{
                     musicProperty.title,
                     musicProperty.duration,
@@ -258,7 +261,7 @@ public class MusicPlayerDashboard implements ActionListener {
                     Object selectedData = libraryTable.getValueAt(libraryTable.getSelectedRow(), 0); // assuming the data is in the first column
 
                     TargetMusic targetMusic = new TargetMusic();
-                    MusicManager.MusicProperty selectedProperty = getMusicManager().getMusicInfo().get(libraryTable.getSelectedRow());
+                    MusicProperty selectedProperty = getMusicManager().getMusicInfo().get(libraryTable.getSelectedRow());
                     targetMusic.title = selectedProperty.title;
                     targetMusic.duration = String.valueOf(selectedProperty.duration);
                     targetMusic.author = selectedProperty.artist;

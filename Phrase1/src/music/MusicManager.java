@@ -1,3 +1,5 @@
+package music;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -5,21 +7,6 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class MusicManager {
-    class MusicProperty {
-        public String title;
-        public float duration;
-        public String artist;
-        public String album;
-        public String genre;
-        public String year;
-        public String path;
-        public String comment;
-        public int channels;
-        public float rate;
-        public int bits;
-        public boolean hasLrc;
-
-    }
 
     private ArrayList<String> wavFiles = new ArrayList<String>();
     private ArrayList<MusicProperty> musicInfo = new ArrayList<MusicProperty>();
@@ -124,12 +111,20 @@ public class MusicManager {
     }
 
     public void saveMusicPropertyToFile(String filePath) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+        try(FileWriter writer = new FileWriter(filePath)){
+            saveMusicProperty(this.musicInfo, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void saveMusicProperty(ArrayList<MusicProperty> musicInfo, Writer writer){
+        try (BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
             // write header row
-            writer.write("title,duration,artist,album,genre,year,path,comment,channels,rate,bits\n");
+            bufferedWriter.write("title,duration,artist,album,genre,year,path,comment,channels,rate,bits\n");
             // write music properties for each file
             for (MusicProperty property : musicInfo) {
-                writer.write(property.title + ","
+                bufferedWriter.write(property.title + ","
                         + property.duration + ","
                         + property.artist + ","
                         + property.album + ","
@@ -147,11 +142,24 @@ public class MusicManager {
     }
 
     public void loadFromCsv(String csvPath) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(csvPath))) {
-            reader.readLine();
+        try(FileReader reader = new FileReader(csvPath)){
+            ArrayList<MusicProperty> musicInfo = loadFromCsv(reader);
+            for (MusicProperty property : musicInfo) {
+                searchLRC(property);
+                this.musicInfo.add(property);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ArrayList<MusicProperty> loadFromCsv(Reader reader) {
+        ArrayList<MusicProperty> musicInfo = new ArrayList<>();
+        try (BufferedReader bufferedReader = new BufferedReader(reader)) {
+            bufferedReader.readLine();
 
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = bufferedReader.readLine()) != null) {
                 String[] values = line.split(",");
                 MusicProperty property = new MusicProperty();
                 property.title = values[0];
@@ -181,12 +189,12 @@ public class MusicManager {
                 } catch (NumberFormatException e) {
                     property.duration = 0;
                 }
-                searchLRC(property);
                 musicInfo.add(property);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return musicInfo;
     }
 
     public void reload(String rootPath) {
