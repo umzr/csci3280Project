@@ -52,6 +52,7 @@ public class MusicPlayerDashboard implements ActionListener {
     private JFormattedTextField clientIP;
     private JButton clientOKBtn;
     private JButton P2PSync;
+    private JFormattedTextField LibraryLocationPath;
     private DefaultTableModel LibraryTableModel;
 
 
@@ -511,7 +512,6 @@ public class MusicPlayerDashboard implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("SYNC...");
-
                 syncMusicInfo();
                 loadLibraryTable();
 

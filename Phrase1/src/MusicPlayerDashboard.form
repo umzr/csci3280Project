@@ -92,7 +92,7 @@
                     <constraints border-constraint="West"/>
                     <properties>
                       <enabled value="true"/>
-                      <text value="Can't see your Song?"/>
+                      <text value="Can't see your Song? Library Path:"/>
                     </properties>
                   </component>
                   <component id="7c564" class="javax.swing.JButton" binding="SYNCButton" custom-create="true" default-binding="true">
@@ -105,6 +105,12 @@
                     <constraints border-constraint="North"/>
                     <properties>
                       <text value="P2PSycn"/>
+                    </properties>
+                  </component>
+                  <component id="37443" class="javax.swing.JFormattedTextField" binding="LibraryLocationPath">
+                    <constraints border-constraint="Center"/>
+                    <properties>
+                      <text value="src\Album"/>
                     </properties>
                   </component>
                 </children>
