@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e24c98a1-7b91-49dc-836d-45f21307c911" name="Changes" comment="not working in progress bar">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music_properties.csv" beforeDir="false" afterPath="$PROJECT_DIR$/music_properties.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Album/client1/香港料理.lrc" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientMusic/client1/香港料理.lrc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Album/client1/香港料理Client1.wav" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientMusic/client1/香港料理Client1.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Album/client2/華鳥風月Client2.wav" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientMusic/client2/華鳥風月Client2.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Album/client3/浮誇Client3.wav" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientMusic/client3/浮誇Client3.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Album/client4/苦瓜Client4.wav" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientMusic/client4/苦瓜Client4.wav" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MusicPlayerDashboard.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard.form" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MusicPlayerDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard.java" afterDir="false" />
     </list>
