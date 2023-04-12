@@ -75,8 +75,11 @@
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/Album" />
     </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="newnetwork" />
+    </key>
   </component>
-  <component name="RunManager" selected="Application.LrcFileReader">
+  <component name="RunManager">
     <configuration name="LrcFileReader" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="LrcFileReader" />
       <module name="MusicPlayerNew" />
@@ -98,8 +101,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="hwserver" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="newnetwork.hwserver" />
+      <module name="MusicPlayerNew" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="newnetwork.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.hwserver" />
         <item itemvalue="Application.LrcFileReader" />
         <item itemvalue="Application.MusicPlayerDashboard" />
         <item itemvalue="Application.MusicManagement" />
@@ -115,7 +132,7 @@
       <option name="presentableId" value="Default" />
       <updated>1678599691956</updated>
       <workItem from="1678599693140" duration="4155000" />
-      <workItem from="1681285971288" duration="979000" />
+      <workItem from="1681285971288" duration="1968000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <created>1678599706358</created>
