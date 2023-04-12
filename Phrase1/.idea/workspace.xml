@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e24c98a1-7b91-49dc-836d-45f21307c911" name="Changes" comment="not working in progress bar">
-      <change afterPath="$PROJECT_DIR$/src/newnetwork/TrackerServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/newnetwork/P2PMusicStreaming.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/newnetwork/P2PMusicStreaming.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/newnetwork/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/newnetwork/Server.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -269,6 +267,16 @@
     <MESSAGE value="add lryic" />
     <MESSAGE value="not working in progress bar" />
     <option name="LAST_COMMIT_MESSAGE" value="not working in progress bar" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="org.zeromq.ZMQException" package="org.zeromq" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

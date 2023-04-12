@@ -33,11 +33,55 @@ public class P2PMusicStreaming {
         List<String> onlinePeers = app.getOnlinePeers(trackerAddress);
 
         // Send search requests and process results
-        System.out.println("Enter a search term:");
-        String searchTerm = scanner.nextLine();
-        List<String> searchResults = app.sendSearchRequest(searchTerm, onlinePeers.get(0));
-        System.out.println("Search results:");
-        searchResults.forEach(System.out::println);
+        while (onlinePeers.isEmpty()) {
+            System.out.println("No peers online. Waiting for peers to connect...");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            onlinePeers = app.getOnlinePeers(trackerAddress);
+        }
+
+        for (String peer : onlinePeers) {
+            System.out.println(peer);
+        }
+
+        System.out.println("------------------");
+        Boolean FLAG = true;
+        while (FLAG) {
+            onlinePeers = app.getOnlinePeers(trackerAddress);
+            System.out.println("*************");
+            System.out.println("Online peers:");
+            for (String peer : onlinePeers) {
+                System.out.println(peer);
+            }
+            System.out.println("*************");
+
+            System.out.println("Enter a search term:");
+            String searchTerm = scanner.nextLine();
+            // List<String> searchResults = app.sendSearchRequest(searchTerm,
+            // onlinePeers.get(0));
+            System.out.println("onlinePeers.get(0): " + onlinePeers.get(0));
+            List<String> searchResults = new ArrayList<>();
+            for (String peer : onlinePeers) {
+                System.out.println("peer" + peer);
+                List<String> temp = app.sendSearchRequest(searchTerm, peer);
+                searchResults.addAll(temp);
+      
+                System.out.println("searchResults: " + temp);
+
+                System.out.println("-------------");
+            }
+
+            System.out.println("Search results:");
+            searchResults.forEach(System.out::println);
+            System.out.println("Do you want to continue? (Y/N)");
+            String answer = scanner.nextLine();
+            if (answer.equals("N")) {
+                FLAG = false;
+            }
+        }
 
         // Unregister from the tracker server and exit the application
         app.unregisterWithTracker(trackerAddress, bindAddress);
@@ -80,6 +124,7 @@ public class P2PMusicStreaming {
         List<String> peers = new ArrayList<>();
         if (peerList != null && !peerList.isEmpty()) {
             for (String address : peerList.split(",")) {
+                System.out.println("There are peers online: " + address);
                 peers.add(address.trim());
             }
         }
@@ -122,13 +167,14 @@ public class P2PMusicStreaming {
     public void listenForSearchRequests(String bindAddress) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REP);
         socket.bind(bindAddress);
-
+        System.out.println("Listening for search requests on " + bindAddress);
         while (!Thread.currentThread().isInterrupted()) {
             String searchTerm = socket.recvStr();
+            System.out.println("Received search request for " + searchTerm);
             // Search local music files (mocked results for simplicity)
             List<String> searchResults = new ArrayList<>();
-            searchResults.add("Song1");
-            searchResults.add("Song2");
+            searchResults.add("Song1 " + bindAddress);
+            searchResults.add("Song2 " + bindAddress);
 
             ZMsg response = new ZMsg();
             searchResults.forEach(response::add);
