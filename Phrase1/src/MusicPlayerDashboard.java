@@ -63,6 +63,7 @@ public class MusicPlayerDashboard implements ActionListener {
     public String csvPath = "./music_properties.csv";
     private MusicManager musicManager;
     public String AlbumPath = "./src/Album";
+    public String userName = "Client1";
 
     public MusicManager getMusicManager() {
         if (musicManager == null) {
@@ -523,12 +524,22 @@ public class MusicPlayerDashboard implements ActionListener {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("LibraryLocationPath");
                 String path = LibraryLocationPath.getText();
-                
                 AlbumPath = path;
-
                 System.out.println(AlbumPath);
             }
+        });
 
+        ClientName = new JFormattedTextField();
+        ClientName.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("ClientName");
+                String name = ClientName.getText();
+                userName = name;
+                System.out.println(userName);
+                csvPath = AlbumPath + "/" + userName + ".csv";
+                System.out.println("csvPath: " + csvPath);
+            }
         });
 
         LibraryScroll = new JScrollPane(libraryTable);

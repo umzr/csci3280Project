@@ -124,7 +124,7 @@
                           <text value="USER Name"/>
                         </properties>
                       </component>
-                      <component id="f73dc" class="javax.swing.JFormattedTextField" binding="ClientName">
+                      <component id="f73dc" class="javax.swing.JFormattedTextField" binding="ClientName" custom-create="true">
                         <constraints border-constraint="Center"/>
                         <properties>
                           <text value="client1"/>
