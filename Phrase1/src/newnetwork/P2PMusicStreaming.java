@@ -60,8 +60,7 @@ public class P2PMusicStreaming {
 
             System.out.println("Enter a search term:");
             String searchTerm = scanner.nextLine();
-            // List<String> searchResults = app.sendSearchRequest(searchTerm,
-            // onlinePeers.get(0));
+
             System.out.println("onlinePeers.get(0): " + onlinePeers.get(0));
             List<String> searchResults = new ArrayList<>();
             for (String peer : onlinePeers) {

@@ -7,6 +7,7 @@
     <list default="true" id="e24c98a1-7b91-49dc-836d-45f21307c911" name="Changes" comment="not working in progress bar">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/newnetwork/P2PMusicStreaming.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/newnetwork/P2PMusicStreaming.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/newnetwork/Server.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +88,7 @@
       <recent name="newnetwork" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.P2PMusicStreaming">
+  <component name="RunManager" selected="Application.MusicPlayerDashboard">
     <configuration name="LrcFileReader" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="LrcFileReader" />
       <module name="MusicPlayerNew" />
