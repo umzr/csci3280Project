@@ -15,6 +15,26 @@ public class P2PMusicStreaming {
         context = new ZContext();
     }
 
+    public static void run(String trackerAddress, String bindAddress) {
+
+        P2PMusicStreaming app = new P2PMusicStreaming();
+        app.registerWithTracker(trackerAddress, bindAddress);
+        app.startListeners(bindAddress);
+        List<String> onlinePeers = app.getOnlinePeers(trackerAddress);
+        while (onlinePeers.isEmpty()) {
+            System.out.println("No peers online. Waiting for peers to connect...");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            onlinePeers = app.getOnlinePeers(trackerAddress);
+        }
+        for(String peer : onlinePeers) {
+            System.out.println(peer);
+        }
+    }
+
     public static void main(String[] args) {
         P2PMusicStreaming app = new P2PMusicStreaming();
         Scanner scanner = new Scanner(System.in);
@@ -67,7 +87,7 @@ public class P2PMusicStreaming {
                 System.out.println("peer" + peer);
                 List<String> temp = app.sendSearchRequest(searchTerm, peer);
                 searchResults.addAll(temp);
-      
+
                 System.out.println("searchResults: " + temp);
 
                 System.out.println("-------------");

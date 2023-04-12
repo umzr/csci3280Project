@@ -1,5 +1,6 @@
 import music.MusicManager;
 import music.MusicProperty;
+import newnetwork.P2PMusicStreaming;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -65,6 +66,8 @@ public class MusicPlayerDashboard implements ActionListener {
     private MusicManager musicManager;
     public String AlbumPath = "./src/Album";
     public String userName = "Client1";
+    public String serverIPaddress = "tcp://localhost:4444"; // default server address
+    public String clientIPaddress = "tcp://localhost:5555"; // default client address
 
     public MusicManager getMusicManager() {
         if (musicManager == null) {
@@ -571,6 +574,36 @@ public class MusicPlayerDashboard implements ActionListener {
                 libraryTable.setRowSorter(sorter);
             }
         });
+        
+        serverIP = new JFormattedTextField();
+        serverIP.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("serverIP");
+                String ip = serverIP.getText();
+                serverIPaddress = ip;
+                System.out.println("serverIPaddress: "+ serverIPaddress);
+            }
+        });
 
+        clientIP = new JFormattedTextField();
+        clientIP.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("clientIP");
+                String ip = clientIP.getText();
+                clientIPaddress = ip;
+                System.out.println("clientIPaddress: "+ clientIPaddress);
+            }
+        });
+
+        P2PconnectButton = new JButton("P2Pconnect");
+        P2PconnectButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("P2Pconnect");
+                P2PMusicStreaming.run(serverIPaddress, clientIPaddress);
+            }
+        });
     }
 }

@@ -28,6 +28,8 @@ public class TrackerServer {
             String[] parts = request.split(":", 2);
             String command = parts[0];
 
+            System.out.println("Received command: " + request);
+            
             if ("REGISTER".equals(command)) {
                 String peerAddress = parts[1];
                 onlinePeers.add(peerAddress);

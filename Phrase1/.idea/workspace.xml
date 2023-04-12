@@ -6,9 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="e24c98a1-7b91-49dc-836d-45f21307c911" name="Changes" comment="not working in progress bar">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/music_properties.csv" beforeDir="false" afterPath="$PROJECT_DIR$/music_properties.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MusicPlayerDashboard.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard.form" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MusicPlayerDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/newnetwork/P2PMusicStreaming.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/newnetwork/P2PMusicStreaming.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/newnetwork/TrackerServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/newnetwork/TrackerServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +67,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH": "258",
+    "UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH": "334",
     "WebServerToolWindowFactoryState": "false",
     "jdk.selected.JAVA_MODULE": "11",
     "last_opened_file_path": "E:/github/csci3280Project/Phrase1",
@@ -98,7 +99,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="MusicPlayerDashboard" type="Application" factoryName="Application" nameIsGenerated="true">
+    <configuration name="MusicPlayerDashboard" type="Application" factoryName="Application" singleton="false" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="MusicPlayerDashboard" />
       <module name="MusicPlayerNew" />
       <method v="2">
@@ -280,8 +281,8 @@
         </breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/MusicPlayerDashboard.java</url>
-          <line>73</line>
-          <properties class="MusicPlayerDashboard" method="syncMusicInfo">
+          <line>76</line>
+          <properties class="MusicPlayerDashboard">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
           </properties>
