@@ -92,7 +92,7 @@
                     <constraints border-constraint="West"/>
                     <properties>
                       <enabled value="true"/>
-                      <text value="Can't see your Song?"/>
+                      <text value="Can't see your Song? Library Path:"/>
                     </properties>
                   </component>
                   <component id="7c564" class="javax.swing.JButton" binding="SYNCButton" custom-create="true" default-binding="true">
@@ -101,6 +101,43 @@
                       <text value="SYNC!"/>
                     </properties>
                   </component>
+                  <component id="e245" class="javax.swing.JButton" binding="P2PSync">
+                    <constraints border-constraint="North"/>
+                    <properties>
+                      <text value="P2PSycn"/>
+                    </properties>
+                  </component>
+                  <component id="37443" class="javax.swing.JFormattedTextField" binding="LibraryLocationPath" custom-create="true">
+                    <constraints border-constraint="Center"/>
+                    <properties>
+                      <text value="./src/ClientMusic/client1"/>
+                    </properties>
+                  </component>
+                  <grid id="fb81" layout-manager="BorderLayout" hgap="0" vgap="0">
+                    <constraints border-constraint="South"/>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="8d313" class="javax.swing.JLabel" binding="CSVPath">
+                        <constraints border-constraint="West"/>
+                        <properties>
+                          <text value="USER Name"/>
+                        </properties>
+                      </component>
+                      <component id="f73dc" class="javax.swing.JFormattedTextField" binding="ClientName" custom-create="true">
+                        <constraints border-constraint="Center"/>
+                        <properties>
+                          <text value="client1"/>
+                        </properties>
+                      </component>
+                      <component id="14dfa" class="javax.swing.JButton" binding="NOUSEButton" default-binding="true">
+                        <constraints border-constraint="East"/>
+                        <properties>
+                          <text value="NOUSE"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
                 </children>
               </grid>
               <grid id="af8b1" layout-manager="BorderLayout" hgap="0" vgap="0">

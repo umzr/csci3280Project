@@ -51,13 +51,20 @@ public class MusicPlayerDashboard implements ActionListener {
     private JLabel clientLabel;
     private JFormattedTextField clientIP;
     private JButton clientOKBtn;
-    private DefaultTableModel LibraryTableModel;
+    private JButton P2PSync;
+    private JFormattedTextField LibraryLocationPath;
+    private JButton NOUSEButton;
+    private JLabel CSVPath;
+    private JFormattedTextField ClientName;
 
+    private DefaultTableModel LibraryTableModel;
 
     private Clip clip;
 
     public String csvPath = "./music_properties.csv";
     private MusicManager musicManager;
+    public String AlbumPath = "./src/Album";
+    public String userName = "Client1";
 
     public MusicManager getMusicManager() {
         if (musicManager == null) {
@@ -66,9 +73,11 @@ public class MusicPlayerDashboard implements ActionListener {
         return musicManager;
     }
 
-    public void syncMusicInfo() {  // get the music management
-        musicManager.reload();
+    public void syncMusicInfo() { // get the music management
+        musicManager.reload(AlbumPath);
+        System.out.println(AlbumPath);
         musicManager.saveMusicPropertyToFile(csvPath);
+        System.out.println(csvPath);
     }
 
     /**
@@ -271,7 +280,7 @@ public class MusicPlayerDashboard implements ActionListener {
     public void loadLibraryTable() {
         LibraryTableModel.setRowCount(0);
         for (MusicProperty musicProperty : musicManager.getMusicInfo()) {
-            LibraryTableModel.addRow(new Object[]{
+            LibraryTableModel.addRow(new Object[] {
                     musicProperty.title,
                     musicProperty.duration,
                     musicProperty.artist,
@@ -286,9 +295,10 @@ public class MusicPlayerDashboard implements ActionListener {
         }
     }
 
-    public LrcFileReader.LrcLine getLrcLine(int ms) throws IOException {  // get the lrc line
+    public LrcFileReader.LrcLine getLrcLine(int ms) throws IOException { // get the lrc line
         String lrcPath = targetMusic.Path.replace(".wav", ".lrc");
-        if (targetMusic.property == null || !targetMusic.property.hasLrc) return null;
+        if (targetMusic.property == null || !targetMusic.property.hasLrc)
+            return null;
 
         LrcFileReader reader = new LrcFileReader(lrcPath);
 
@@ -303,7 +313,7 @@ public class MusicPlayerDashboard implements ActionListener {
         return null;
     }
 
-    public void getLrcLines() throws IOException {  // get the lrc lines
+    public void getLrcLines() throws IOException { // get the lrc lines
         lyricsDisplay.setText("");
 
         String lrcPath = targetMusic.Path.replace(".wav", ".lrc");
@@ -375,7 +385,8 @@ public class MusicPlayerDashboard implements ActionListener {
                 // Set the maximum value of the progress bar to the length of the audio file
                 musicProgressBar.setMaximum((int) clip.getMicrosecondLength() / 1000);
 
-                // Create a SwingWorker to play the audio and update the progress bar in the background
+                // Create a SwingWorker to play the audio and update the progress bar in the
+                // background
                 SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
 
                     @Override
@@ -384,11 +395,15 @@ public class MusicPlayerDashboard implements ActionListener {
                         System.out.println("latestPosition");
                         boolean oncePlayed = false;
                         while (clip != null && clip.isOpen()) {
-                            // it is not necessary that the clip is running right after clip.start() is called,
-                            // therefore we have a flag such that the loop gets break only if the clip was running
+                            // it is not necessary that the clip is running right after clip.start() is
+                            // called,
+                            // therefore we have a flag such that the loop gets break only if the clip was
+                            // running
                             // and stopped
-                            if (oncePlayed && !clip.isRunning()) break;
-                            if (!oncePlayed && clip.isRunning()) oncePlayed = true;
+                            if (oncePlayed && !clip.isRunning())
+                                break;
+                            if (!oncePlayed && clip.isRunning())
+                                oncePlayed = true;
                             int position = (int) clip.getMicrosecondPosition() / 1000;
                             publish(position); // publish the position to update the progress bar on the EDT
                             Thread.sleep(1000);
@@ -433,7 +448,6 @@ public class MusicPlayerDashboard implements ActionListener {
         }
     }
 
-
     public static void main(String[] args) throws IOException {
         MusicPlayerDashboard player = new MusicPlayerDashboard();
 
@@ -469,7 +483,6 @@ public class MusicPlayerDashboard implements ActionListener {
         loadLibraryTable();
         libraryTable.setModel(LibraryTableModel);
 
-
         // add a selection listener to the table
         selectedMusicBox = new JEditorPane(); // assuming you have a JEditorPane instance
         libraryTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -478,20 +491,23 @@ public class MusicPlayerDashboard implements ActionListener {
                 // check if the selection is valid and not adjusting
                 if (!event.getValueIsAdjusting() && libraryTable.getSelectedRow() != -1) {
                     // get the selected row data
-                    Object selectedData = libraryTable.getValueAt(libraryTable.getSelectedRow(), 0); // assuming the data is in the first column
+                    Object selectedData = libraryTable.getValueAt(libraryTable.getSelectedRow(), 0); // assuming the
+                                                                                                     // data is in the
+                                                                                                     // first column
 
                     TargetMusic targetMusic = new TargetMusic();
-                    MusicProperty selectedProperty = getMusicManager().getMusicInfo().get(libraryTable.getSelectedRow());
+                    MusicProperty selectedProperty = getMusicManager().getMusicInfo()
+                            .get(libraryTable.getSelectedRow());
                     targetMusic.property = selectedProperty;
                     targetMusic.title = selectedProperty.title;
                     targetMusic.duration = String.valueOf(selectedProperty.duration);
                     targetMusic.author = selectedProperty.artist;
                     targetMusic.Path = selectedProperty.path;
 
-
                     setTargetMusic(targetMusic);
                     // set the selected data to the JEditorPane
-                    selectedMusicBox.setText(targetMusic.title + " (" + targetMusic.Path + ") " + (targetMusic.author.isBlank() ? "(No Authors)" : targetMusic.author));
+                    selectedMusicBox.setText(targetMusic.title + " (" + targetMusic.Path + ") "
+                            + (targetMusic.author.isBlank() ? "(No Authors)" : targetMusic.author));
 
                     try {
                         System.out.println("get lrc lines");
@@ -503,6 +519,30 @@ public class MusicPlayerDashboard implements ActionListener {
             }
         });
 
+        LibraryLocationPath = new JFormattedTextField();
+        LibraryLocationPath.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("LibraryLocationPath");
+                String path = LibraryLocationPath.getText();
+                AlbumPath = path;
+                System.out.println(AlbumPath);
+            }
+        });
+
+        ClientName = new JFormattedTextField();
+        ClientName.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("ClientName");
+                String name = ClientName.getText();
+                userName = name;
+                System.out.println(userName);
+                csvPath = AlbumPath + "/" + userName + ".csv";
+                System.out.println("csvPath: " + csvPath);
+            }
+        });
+
         LibraryScroll = new JScrollPane(libraryTable);
         // create the table model end
         SYNCButton = new JButton("SYNC");
@@ -510,7 +550,6 @@ public class MusicPlayerDashboard implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("SYNC...");
-
                 syncMusicInfo();
                 loadLibraryTable();
 
