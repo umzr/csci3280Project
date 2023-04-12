@@ -22,11 +22,12 @@ public class Server {
 
         while (!Thread.currentThread().isInterrupted()) {
             // Receive a new peer's bind address
-            String peerAddress = socket.recvStr();
+            String action = socket.recvStr();
 
             // Add the new peer to the list of connected peers
-            connectedPeers.add(peerAddress);
-            System.out.println("New peer connected: " + peerAddress);
+       
+            connectedPeers.add(action);
+            System.out.println("New peer connected: " + action);
 
             // Send the list of connected peers to the new peer
             ZMsg peerList = new ZMsg();

@@ -7,6 +7,7 @@ import org.zeromq.ZMsg;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
 public class P2PMusicStreaming {
     private final ZContext context;
 
@@ -17,26 +18,72 @@ public class P2PMusicStreaming {
     public static void main(String[] args) {
         P2PMusicStreaming app = new P2PMusicStreaming();
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter the server address (e.g., tcp://localhost:5555):");
-        String serverAddress = scanner.nextLine();
-        System.out.println("Enter your peer address (e.g., tcp://localhost:5556):");
+        System.out.println("Enter the tracker server address (e.g., tcp://localhost:4444):");
+        String trackerAddress = scanner.nextLine();
+        System.out.println("Enter your peer address (e.g., tcp://localhost:5555):");
         String bindAddress = scanner.nextLine();
 
-        // Connect to the server and retrieve the list of connected peers
-        List<String> peerAddresses = app.connectToServer(serverAddress, bindAddress);
+        // Register with the tracker server
+        app.registerWithTracker(trackerAddress, bindAddress);
 
-        // Start listening for search, availability, and data requests
+        // Start listeners for search, availability, and data requests
         app.startListeners(bindAddress);
 
-        // Send search request and process results
+        // Get the list of online peers from the tracker server
+        List<String> onlinePeers = app.getOnlinePeers(trackerAddress);
+
+        // Send search requests and process results
         System.out.println("Enter a search term:");
         String searchTerm = scanner.nextLine();
-        List<String> searchResults = app.sendSearchRequest(searchTerm, peerAddresses.get(0));
+        List<String> searchResults = app.sendSearchRequest(searchTerm, onlinePeers.get(0));
         System.out.println("Search results:");
         searchResults.forEach(System.out::println);
 
-        // Exit the application
+        // Unregister from the tracker server and exit the application
+        app.unregisterWithTracker(trackerAddress, bindAddress);
         app.context.close();
+    }
+
+    public void registerWithTracker(String trackerAddress, String peerAddress) {
+        ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
+        socket.connect(trackerAddress);
+        socket.send("REGISTER:" + peerAddress);
+        String response = socket.recvStr();
+        if ("OK".equals(response)) {
+            System.out.println("Registered with tracker successfully.");
+        } else {
+            System.err.println("Failed to register with tracker.");
+        }
+        socket.close();
+    }
+
+    public void unregisterWithTracker(String trackerAddress, String peerAddress) {
+        ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
+        socket.connect(trackerAddress);
+        socket.send("UNREGISTER:" + peerAddress);
+        String response = socket.recvStr();
+        if ("OK".equals(response)) {
+            System.out.println("Unregistered from tracker successfully.");
+        } else {
+            System.err.println("Failed to unregister from tracker.");
+        }
+        socket.close();
+    }
+
+    public List<String> getOnlinePeers(String trackerAddress) {
+        ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
+        socket.connect(trackerAddress);
+        socket.send("GET_PEERS");
+        String peerList = socket.recvStr();
+        socket.close();
+
+        List<String> peers = new ArrayList<>();
+        if (peerList != null && !peerList.isEmpty()) {
+            for (String address : peerList.split(",")) {
+                peers.add(address.trim());
+            }
+        }
+        return peers;
     }
 
     private List<String> connectToServer(String serverAddress, String bindAddress) {
@@ -129,8 +176,8 @@ public class P2PMusicStreaming {
         // Load and divide the audio file into smaller chunks
         // For simplicity, we return a mocked list of byte arrays
         List<byte[]> audioChunks = new ArrayList<>();
-        audioChunks.add(new byte[]{0x01, 0x02, 0x03});
-        audioChunks.add(new byte[]{0x04, 0x05, 0x06});
+        audioChunks.add(new byte[] { 0x01, 0x02, 0x03 });
+        audioChunks.add(new byte[] { 0x04, 0x05, 0x06 });
         return audioChunks;
     }
 
@@ -152,7 +199,10 @@ public class P2PMusicStreaming {
         return chunkData;
     }
 
-// Add methods for sending and receiving image data chunks similar to the audio data methods.
-// Then, implement the downloadAndDisplayInterleavedImage method to request different chunks
-// of the image from different peers, reassemble the image, and display the interleaved result.
+    // Add methods for sending and receiving image data chunks similar to the audio
+    // data methods.
+    // Then, implement the downloadAndDisplayInterleavedImage method to request
+    // different chunks
+    // of the image from different peers, reassemble the image, and display the
+    // interleaved result.
 }
