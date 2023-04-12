@@ -56,6 +56,7 @@ public class MusicPlayerDashboard implements ActionListener {
     private JButton NOUSEButton;
     private JLabel CSVPath;
     private JFormattedTextField ClientName;
+
     private DefaultTableModel LibraryTableModel;
 
     private Clip clip;
