@@ -44,6 +44,13 @@ public class MusicPlayerDashboard implements ActionListener {
     private JTextField SearchText;
     private JFormattedTextField lyricsRealtimeText;
     private JLabel lyricsRealtimeLabel;
+    private JFormattedTextField serverIP;
+    private JButton severOKBtn;
+    private JButton P2PconnectButton;
+    private JLabel serverLabel;
+    private JLabel clientLabel;
+    private JFormattedTextField clientIP;
+    private JButton clientOKBtn;
     private DefaultTableModel LibraryTableModel;
 
 
