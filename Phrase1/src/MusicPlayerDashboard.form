@@ -107,10 +107,10 @@
                       <text value="P2PSycn"/>
                     </properties>
                   </component>
-                  <component id="37443" class="javax.swing.JFormattedTextField" binding="LibraryLocationPath">
+                  <component id="37443" class="javax.swing.JFormattedTextField" binding="LibraryLocationPath" custom-create="true">
                     <constraints border-constraint="Center"/>
                     <properties>
-                      <text value="src\Album"/>
+                      <text value="./src/ClientMusic/client1"/>
                     </properties>
                   </component>
                   <grid id="fb81" layout-manager="BorderLayout" hgap="0" vgap="0">

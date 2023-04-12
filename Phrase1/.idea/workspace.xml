@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e24c98a1-7b91-49dc-836d-45f21307c911" name="Changes" comment="not working in progress bar">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/music_properties.csv" beforeDir="false" afterPath="$PROJECT_DIR$/music_properties.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MusicPlayerDashboard.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard.form" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MusicPlayerDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard.java" afterDir="false" />
     </list>
@@ -276,10 +278,14 @@
           <properties class="org.zeromq.ZMQException" package="org.zeromq" />
           <option name="timeStamp" value="1" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
+        <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/MusicPlayerDashboard.java</url>
-          <line>511</line>
-          <option name="timeStamp" value="2" />
+          <line>73</line>
+          <properties class="MusicPlayerDashboard" method="syncMusicInfo">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
