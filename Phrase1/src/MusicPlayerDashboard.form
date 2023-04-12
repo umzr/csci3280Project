@@ -113,6 +113,31 @@
                       <text value="src\Album"/>
                     </properties>
                   </component>
+                  <grid id="fb81" layout-manager="BorderLayout" hgap="0" vgap="0">
+                    <constraints border-constraint="South"/>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="8d313" class="javax.swing.JLabel" binding="CSVPath">
+                        <constraints border-constraint="West"/>
+                        <properties>
+                          <text value="USER Name"/>
+                        </properties>
+                      </component>
+                      <component id="f73dc" class="javax.swing.JFormattedTextField" binding="ClientName">
+                        <constraints border-constraint="Center"/>
+                        <properties>
+                          <text value="client1"/>
+                        </properties>
+                      </component>
+                      <component id="14dfa" class="javax.swing.JButton" binding="NOUSEButton" default-binding="true">
+                        <constraints border-constraint="East"/>
+                        <properties>
+                          <text value="NOUSE"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
                 </children>
               </grid>
               <grid id="af8b1" layout-manager="BorderLayout" hgap="0" vgap="0">

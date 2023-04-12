@@ -278,7 +278,7 @@
         </breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/MusicPlayerDashboard.java</url>
-          <line>509</line>
+          <line>511</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>

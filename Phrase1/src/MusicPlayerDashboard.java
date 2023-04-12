@@ -53,6 +53,9 @@ public class MusicPlayerDashboard implements ActionListener {
     private JButton clientOKBtn;
     private JButton P2PSync;
     private JFormattedTextField LibraryLocationPath;
+    private JButton NOUSEButton;
+    private JLabel CSVPath;
+    private JFormattedTextField ClientName;
     private DefaultTableModel LibraryTableModel;
 
 
