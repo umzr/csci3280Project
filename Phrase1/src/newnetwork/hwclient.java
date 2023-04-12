@@ -21,6 +21,7 @@ public class hwclient
             ZMQ.Socket socket = context.createSocket(SocketType.REQ);
             socket.connect("tcp://localhost:5555");
 
+
             for (int requestNbr = 0; requestNbr != 10; requestNbr++) {
                 String request = "Hello";
                 System.out.println("Sending Hello " + requestNbr);
