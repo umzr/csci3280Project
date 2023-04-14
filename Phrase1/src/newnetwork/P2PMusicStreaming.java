@@ -5,16 +5,21 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import static music.MusicProperty.decodeMusicProperty;
 import static music.MusicProperty.flat2byteMusicProperty;
 
 public class P2PMusicStreaming {
     private final ZContext context;
+    private String trackerAddress;
 
     public P2PMusicStreaming() {
         context = new ZContext();
@@ -37,6 +42,13 @@ public class P2PMusicStreaming {
     public void setClientAddress(String clientAddress) {
         ClientAddress = clientAddress;
     }
+    private String getTrackerAddress(){
+        if(trackerAddress != null){
+            return trackerAddress;
+        }
+        return "tcp://localhost:4444";
+    }
+
     public static P2PMusicStreaming run(String trackerAddress, String bindAddress) {
         P2PMusicStreaming app = new P2PMusicStreaming();
         app.setClientAddress(bindAddress);
@@ -136,6 +148,7 @@ public class P2PMusicStreaming {
         socket.send("REGISTER:" + peerAddress);
         String response = socket.recvStr();
         if ("OK".equals(response)) {
+            this.trackerAddress = trackerAddress;
             System.out.println("Registered with tracker successfully.");
         } else {
             System.err.println("Failed to register with tracker.");
@@ -184,6 +197,7 @@ public class P2PMusicStreaming {
             // recv --> action | <some args>
 
             String[] recvArr = recv.split("\\|");
+            ZMsg response;
             switch (recvArr[0]){
                 case "SEARCH":
                     String searchTerm = recvArr[1];
@@ -192,15 +206,29 @@ public class P2PMusicStreaming {
                     String clinetAddress = getClientAddress();
                     byte[] send = flat2byteMusicProperty(musicInfo, clinetAddress);
 
-                    ZMsg response = new ZMsg();
+                    response = new ZMsg();
                     response.add(send);
                     response.send(socket);
 
                     break;
                 case "AVAILABILITY":
-
-
+                    String filepath = recvArr[1];
+                    System.out.println("Received availability check for " + filepath);
+                    response = new ZMsg();
+                    boolean found = new File(filepath).isFile();
+                    response.add(new byte[]{(byte) (found ? 1 : 0)});
+                    response.send(socket);
                     break;
+                case "AUDIOCHUNK":
+                    String request = recvArr[1];
+                    String[] splitted = request.split(":");
+                    String fp = splitted[0];
+                    String chunkStr = splitted[1];
+                    int chunk = Integer.parseInt(chunkStr);
+                    response = new ZMsg();
+                    byte[] chunkData = getAudioChunks(fp, chunk);
+                    response.add(chunkData);
+                    response.send(socket);
                 default:
                     System.out.println("Invalid request");
                     break;
@@ -221,7 +249,6 @@ public class P2PMusicStreaming {
     public ArrayList<MusicProperty> sendSearchRequest(String searchTerm, String targetPeerAddress) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
 
-        List<String> target  = getOnlinePeers("tcp://localhost:4444");
         socket.connect(targetPeerAddress);
         socket.send("SEARCH|" + searchTerm);
         ZMsg response = ZMsg.recvMsg(socket);
@@ -232,9 +259,18 @@ public class P2PMusicStreaming {
         return musicInfo;
     }
 
+    public boolean askForAvailability(String filepath, String targetPeerAddress){
+        ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
 
+        socket.connect(targetPeerAddress);
+        socket.send("AVAILABILITY|" + filepath);
+        ZMsg response = ZMsg.recvMsg(socket);
+        byte[] recv = response.getFirst().getData();
+        boolean available = recv[0] == 1;
+        socket.close();
+        return available;
+    }
 
-    //when receive request, send own song list to request sender
     public void listenForSearchRequests(String bindAddress) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REP);
         socket.bind(bindAddress);
@@ -269,32 +305,42 @@ public class P2PMusicStreaming {
     }
 
     public void listenForAudioDataRequests(String bindAddress) {
-        ZMQ.Socket socket = context.createSocket(ZMQ.REP);
-        socket.bind(bindAddress);
-
-        while (!Thread.currentThread().isInterrupted()) {
-            String fileName = socket.recvStr();
-            // Send the requested audio data chunks (omitted
-
-            // Retrieve audio file chunks and send them
-            List<byte[]> audioChunks = getAudioChunks(fileName);
-            ZMsg audioData = new ZMsg();
-            for (byte[] chunk : audioChunks) {
-                audioData.add(chunk);
-            }
-            audioData.send(socket);
-        }
-
-        socket.close();
+//        ZMQ.Socket socket = context.createSocket(ZMQ.REP);
+//        socket.bind(bindAddress);
+//
+//        while (!Thread.currentThread().isInterrupted()) {
+//            String fileName = socket.recvStr();
+//            // Send the requested audio data chunks (omitted
+//
+//            // Retrieve audio file chunks and send them
+//            List<byte[]> audioChunks = getAudioChunks(fileName, 0);
+//            ZMsg audioData = new ZMsg();
+//            for (byte[] chunk : audioChunks) {
+//                audioData.add(chunk);
+//            }
+//            audioData.send(socket);
+//        }
+//
+//        socket.close();
     }
 
-    private List<byte[]> getAudioChunks(String fileName) {
+    private byte[] getAudioChunks(String fileName, int chunk) {
         // Load and divide the audio file into smaller chunks
-        // For simplicity, we return a mocked list of byte arrays
-        List<byte[]> audioChunks = new ArrayList<>();
-        audioChunks.add(new byte[] { 0x01, 0x02, 0x03 });
-        audioChunks.add(new byte[] { 0x04, 0x05, 0x06 });
-        return audioChunks;
+        try(AudioInputStream ais = AudioSystem.getAudioInputStream(new File(fileName))) {
+            ais.skip((long) chunk * ais.getFormat().getFrameSize());
+            byte[] data = new byte[Math.toIntExact(ais.getFrameLength())];
+            int readed = ais.read(data);
+            if(readed < 0) return new byte[0];
+            if(readed != data.length){
+                byte[] tmp = data;
+                data = new byte[readed];
+                System.arraycopy(tmp, 0, data, 0, readed);
+            }
+            return data;
+        } catch (UnsupportedAudioFileException | IOException e) {
+            e.printStackTrace();
+        }
+        return new byte[0];
     }
 
     public void playAudioInterleaved(String fileName, List<String> peerAddresses) {
@@ -306,10 +352,10 @@ public class P2PMusicStreaming {
         // Combine the chunks and play the audio (omitted for simplicity)
     }
 
-    private byte[] requestAudioChunk(String targetPeerAddress, String fileName, int chunkIndex) {
+    public byte[] requestAudioChunk(String targetPeerAddress, String fileName, int chunkIndex) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
         socket.connect(targetPeerAddress);
-        socket.send(fileName + ":" + chunkIndex);
+        socket.send("AUDIOCHUNK|" + fileName + ":" + chunkIndex);
         byte[] chunkData = socket.recv();
         socket.close();
         return chunkData;

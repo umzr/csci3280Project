@@ -1,4 +1,5 @@
 import music.MusicManager;
+import music.MusicPlayer;
 import music.MusicProperty;
 import newnetwork.P2PMusicStreaming;
 
@@ -9,7 +10,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -62,6 +62,7 @@ public class MusicPlayerDashboard implements ActionListener {
     private DefaultTableModel LibraryTableModel;
 
     private Clip clip;
+    private MusicPlayer player;
 
     public String csvPath = "./music_properties.csv";
     private MusicManager musicManager;
@@ -92,7 +93,7 @@ public class MusicPlayerDashboard implements ActionListener {
         public String title;
         public String Path;
         public String author;
-        public String duration;
+        public float duration;
 
         public String tcpClient;
     }
@@ -187,7 +188,7 @@ public class MusicPlayerDashboard implements ActionListener {
     public String getFormattedTimeMs(int ms) {
         int min = ms / 1000 / 60;
         int sec = ms / 1000 % 60;
-        return min + ":" + sec;
+        return String.format("%d:%02d", min, sec);
     }
 
     public void setVolume() {
@@ -203,6 +204,10 @@ public class MusicPlayerDashboard implements ActionListener {
         }
     }
 
+    public boolean isMusicLocal(TargetMusic music){
+        return "local".equals(music.tcpClient) || clientIPaddress.equals(targetMusic.tcpClient);
+    }
+
     public MusicPlayerDashboard() throws IOException {
         JFrame frame = new JFrame("MusicPlayerDashboard");
         frame.setContentPane(this.MusicPlayer);
@@ -216,23 +221,37 @@ public class MusicPlayerDashboard implements ActionListener {
         volumeSlider.addChangeListener(e -> {
             setVolume();
         });
+
+        player = new MusicPlayer();
     }
 
     @Override
     public void actionPerformed(ActionEvent event) {
         if (event.getSource() == startButton) {
             try {
-                if (clip != null && clip.isRunning()) {
-                    clip.stop();
-                    clip.setMicrosecondPosition(0);
+//                if (clip != null && clip.isRunning()) {
+//                    clip.stop();
+//                    clip.setMicrosecondPosition(0);
+//                }
+                if(player.isPlaying()){
+                    player.stop();
                 }
-                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(targetMusic.Path));
-                clip = AudioSystem.getClip();
-                clip.open(audioInputStream);
-                setVolume();
+
+                player.startPlayMusic(targetMusic.property, isMusicLocal(targetMusic));
+//                AudioInputStream audioInputStream;
+//                if(isMusicLocal(targetMusic)){
+//                    audioInputStream = AudioSystem.getAudioInputStream(new File(targetMusic.Path));
+//                }
+//                else{
+//
+//                }
+//                clip = AudioSystem.getClip();
+//                clip.open(audioInputStream);
+//                setVolume();
 
                 // Set the maximum value of the progress bar to the length of the audio file
-                musicProgressBar.setMaximum((int) clip.getMicrosecondLength() / 1000);
+                musicProgressBar.setMaximum((int) targetMusic.duration);
+//                musicProgressBar.setMaximum((int) clip.getMicrosecondLength() / 1000);
 
                 // Create a SwingWorker to play the audio and update the progress bar in the
                 // background
@@ -240,23 +259,32 @@ public class MusicPlayerDashboard implements ActionListener {
 
                     @Override
                     protected Void doInBackground() throws Exception {
-                        clip.start();
+//                        clip.start();
                         System.out.println("latestPosition");
                         boolean oncePlayed = false;
-                        while (clip != null && clip.isOpen()) {
-                            // it is not necessary that the clip is running right after clip.start() is
-                            // called,
-                            // therefore we have a flag such that the loop gets break only if the clip was
-                            // running
-                            // and stopped
-                            if (oncePlayed && !clip.isRunning())
+                        while(player.isOpen()){
+                            if (oncePlayed && !player.isPlaying())
                                 break;
-                            if (!oncePlayed && clip.isRunning())
+                            if (!oncePlayed && player.isPlaying())
                                 oncePlayed = true;
-                            int position = (int) clip.getMicrosecondPosition() / 1000;
+                            int position = (int) player.getCurrentTime();
                             publish(position); // publish the position to update the progress bar on the EDT
                             Thread.sleep(1000);
                         }
+//                        while (clip != null && clip.isOpen()) {
+//                            // it is not necessary that the clip is running right after clip.start() is
+//                            // called,
+//                            // therefore we have a flag such that the loop gets break only if the clip was
+//                            // running
+//                            // and stopped
+//                            if (oncePlayed && !clip.isRunning())
+//                                break;
+//                            if (!oncePlayed && clip.isRunning())
+//                                oncePlayed = true;
+//                            int position = (int) clip.getMicrosecondPosition() / 1000;
+//                            publish(position); // publish the position to update the progress bar on the EDT
+//                            Thread.sleep(1000);
+//                        }
                         return null;
                     }
 
@@ -265,8 +293,8 @@ public class MusicPlayerDashboard implements ActionListener {
                         // Update the progress bar on the EDT;
                         int latestPosition = chunks.get(chunks.size() - 1);
                         musicProgressBar.setValue(latestPosition);
-                        String endTime = getFormattedTimeMs((int) clip.getMicrosecondLength() / 1000);
-                        String startTime = getFormattedTimeMs(latestPosition);
+                        String endTime = getFormattedTimeMs((int) targetMusic.duration * 1000);
+                        String startTime = getFormattedTimeMs(latestPosition * 1000);
                         musicTime.setText(startTime + " / " + endTime);
                         System.out.println(latestPosition);
 
@@ -290,8 +318,10 @@ public class MusicPlayerDashboard implements ActionListener {
                 selectedMusicBox.setText("NONE! no music in the list (information Display)");
             }
         } else if (event.getSource() == stopButton) {
-            clip.stop();
-            clip.close();
+            player.stop();
+            player.close();
+//            clip.stop();
+//            clip.close();
             musicProgressBar.setValue(0);
             musicTime.setText("0:0 / 0:0");
         }
@@ -350,16 +380,20 @@ public class MusicPlayerDashboard implements ActionListener {
                             .get(libraryTable.getSelectedRow());
                     targetMusic.property = selectedProperty;
                     targetMusic.title = selectedProperty.title;
-                    targetMusic.duration = String.valueOf(selectedProperty.duration);
+                    targetMusic.duration = selectedProperty.duration;
                     targetMusic.author = selectedProperty.artist;
                     targetMusic.Path = selectedProperty.path;
                     targetMusic.tcpClient = selectedProperty.ftpPath;
                     System.out.println("tcp is " + targetMusic.tcpClient);
                     System.out.println("clientIPaddress is " + clientIPaddress);
-                    if(!clientIPaddress.equals(targetMusic.tcpClient)) {
+                    if(!MusicPlayerDashboard.this.isMusicLocal(targetMusic)) {
                         System.out.println("tcp is null");
 
-                        selectedMusicBox.setText(targetMusic.title +"NONE! this is not your local music (information Display)");
+                        setTargetMusic(targetMusic);
+                        // set the selected data to the JEditorPane
+                        selectedMusicBox.setText(targetMusic.title + " (" + targetMusic.Path + ") "
+                                + (targetMusic.author.isBlank() ? "(No Authors)" : targetMusic.author) + " (non local music)");
+//                        selectedMusicBox.setText(targetMusic.title +"NONE! this is not your local music (information Display)");
 
 
 

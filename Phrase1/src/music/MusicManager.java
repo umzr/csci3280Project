@@ -45,10 +45,10 @@ public class MusicManager {
             if (files == null) return;
             for (File f : files) {
                 if (f.isDirectory()) {
-                    searchMusicPaths(f.getAbsolutePath());
+                    searchMusicPaths(f.getPath());
                 } else {
                     if (f.getName().endsWith(".wav")) {
-                        wavFiles.add(f.getAbsolutePath());
+                        wavFiles.add(f.getPath());
                     }
                 }
             }
@@ -98,7 +98,8 @@ public class MusicManager {
                 property.channels = format.getChannels();
                 property.rate = format.getSampleRate();
                 property.bits = format.getSampleSizeInBits();
-                property.path = file.getAbsolutePath();
+                property.path = file.getPath();
+                property.ftpPath = "local";
                 property.duration = audioInputStream.getFrameLength() / format.getFrameRate();
                 searchLRC(property);
 
