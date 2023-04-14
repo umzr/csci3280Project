@@ -77,6 +77,9 @@ public class MusicPlayerDashboard implements ActionListener {
         return musicManager;
     }
 
+    public void setMusicManager(MusicManager musicManager) {
+        this.musicManager = musicManager;
+    }
     public void syncMusicInfo() { // get the music management
         musicManager.reload(AlbumPath);
         System.out.println(AlbumPath);
@@ -101,6 +104,7 @@ public class MusicPlayerDashboard implements ActionListener {
 
     public void loadLibraryTableFromSearch(ArrayList<MusicProperty> musicProperties) {
         LibraryTableModel.setRowCount(0);
+        musicManager.setMusicInfo(musicProperties);
         for (MusicProperty musicProperty : musicProperties) {
             LibraryTableModel.addRow(new Object[] {
                     musicProperty.title,
