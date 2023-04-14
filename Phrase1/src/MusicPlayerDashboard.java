@@ -93,6 +93,8 @@ public class MusicPlayerDashboard implements ActionListener {
         public String Path;
         public String author;
         public String duration;
+
+        public String tcpClient;
     }
 
     public TargetMusic targetMusic = new TargetMusic();
@@ -116,7 +118,8 @@ public class MusicPlayerDashboard implements ActionListener {
                     musicProperty.album,
                     musicProperty.genre,
                     musicProperty.year,
-                    musicProperty.comment
+                    musicProperty.comment,
+                    musicProperty.ftpPath
             });
         }
 
@@ -184,12 +187,6 @@ public class MusicPlayerDashboard implements ActionListener {
     public String getFormattedTimeMs(int ms) {
         int min = ms / 1000 / 60;
         int sec = ms / 1000 % 60;
-        return min + ":" + sec;
-    }
-
-    public String getFormattedTime(int s) {
-        int min = s / 60;
-        int sec = s % 60;
         return min + ":" + sec;
     }
 
@@ -331,6 +328,7 @@ public class MusicPlayerDashboard implements ActionListener {
         LibraryTableModel.addColumn("Genre");
         LibraryTableModel.addColumn("Year");
         LibraryTableModel.addColumn("Comment");
+        LibraryTableModel.addColumn("TCP");
         getMusicManager().loadFromCsv(csvPath);
         loadLibraryTable();
         libraryTable.setModel(LibraryTableModel);
@@ -355,17 +353,28 @@ public class MusicPlayerDashboard implements ActionListener {
                     targetMusic.duration = String.valueOf(selectedProperty.duration);
                     targetMusic.author = selectedProperty.artist;
                     targetMusic.Path = selectedProperty.path;
+                    targetMusic.tcpClient = selectedProperty.ftpPath;
+                    System.out.println("tcp is " + targetMusic.tcpClient);
+                    System.out.println("clientIPaddress is " + clientIPaddress);
+                    if(!clientIPaddress.equals(targetMusic.tcpClient)) {
+                        System.out.println("tcp is null");
 
-                    setTargetMusic(targetMusic);
-                    // set the selected data to the JEditorPane
-                    selectedMusicBox.setText(targetMusic.title + " (" + targetMusic.Path + ") "
-                            + (targetMusic.author.isBlank() ? "(No Authors)" : targetMusic.author));
+                        selectedMusicBox.setText(targetMusic.title +"NONE! this is not your local music (information Display)");
 
-                    try {
-                        System.out.println("get lrc lines");
-                        getLrcLines();
-                    } catch (IOException e) {
-                        lyricsDisplay.setText("No Lyrics");
+
+
+                    }else {
+                        setTargetMusic(targetMusic);
+                        // set the selected data to the JEditorPane
+                        selectedMusicBox.setText(targetMusic.title + " (" + targetMusic.Path + ") "
+                                + (targetMusic.author.isBlank() ? "(No Authors)" : targetMusic.author));
+
+                        try {
+                            System.out.println("get lrc lines");
+                            getLrcLines();
+                        } catch (IOException e) {
+                            lyricsDisplay.setText("No Lyrics");
+                        }
                     }
                 }
             }
