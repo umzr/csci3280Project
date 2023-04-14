@@ -18,6 +18,8 @@ public class MusicProperty {
     public int bits;
     public boolean hasLrc;
 
+    public boolean fromNet;
+
     public MusicProperty(String title, float duration, String artist, String album, String genre, String year, String path, String comment, int channels, float rate, int bits, boolean hasLrc) {
         this.title = title;
         this.duration = duration;
@@ -31,6 +33,22 @@ public class MusicProperty {
         this.rate = rate;
         this.bits = bits;
         this.hasLrc = hasLrc;
+    }
+
+    public MusicProperty(String title, float duration, String artist, String album, String genre, String year, String path, String comment, int channels, float rate, int bits, boolean hasLrc,boolean fromNet) {
+        this.title = title;
+        this.duration = duration;
+        this.artist = artist;
+        this.album = album;
+        this.genre = genre;
+        this.year = year;
+        this.path = path;
+        this.comment = comment;
+        this.channels = channels;
+        this.rate = rate;
+        this.bits = bits;
+        this.hasLrc = hasLrc;
+        this.fromNet = fromNet;
     }
 
     // Empty constructor
@@ -47,11 +65,12 @@ public class MusicProperty {
         rate = 0;
         bits = 0;
         hasLrc = false;
+        fromNet = false;
     }
 
     @Override
     public String toString() {
-        return title + "|" + duration + "|" + artist + "|" + album + "|" + genre + "|" + year + "|" + path + "|" + comment + "|" + channels + "|" + rate + "|" + bits + "|" + hasLrc;
+        return title + "|" + duration + "|" + artist + "|" + album + "|" + genre + "|" + year + "|" + path + "|" + comment + "|" + channels + "|" + rate + "|" + bits + "|" + hasLrc + "|" + fromNet;
     }
 
     public static byte[] flat2byteMusicProperty(ArrayList<MusicProperty> musicInfo) {

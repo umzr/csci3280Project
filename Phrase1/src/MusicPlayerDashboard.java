@@ -327,6 +327,7 @@ public class MusicPlayerDashboard implements ActionListener {
         LibraryTableModel.addColumn("Genre");
         LibraryTableModel.addColumn("Year");
         LibraryTableModel.addColumn("Comment");
+        LibraryTableModel.addColumn("Net");
         getMusicManager().loadFromCsv(csvPath);
         loadLibraryTable();
         libraryTable.setModel(LibraryTableModel);
@@ -484,9 +485,13 @@ public class MusicPlayerDashboard implements ActionListener {
 
                 for (String peer : onlinePeers) {
                     System.out.println("peer: " + peer);
-                    ArrayList<MusicProperty> recvMusicList = app.sendSearchRequest("Na", peer);
-                    System.out.println("recvMusicList: " + recvMusicList);
-                    peerMusicLists.addAll(recvMusicList);
+                    if(!peer.equals(clientIP)) {
+                        ArrayList<MusicProperty> recvMusicList = app.sendSearchRequest("Na", peer);
+                        System.out.println("recvMusicList: " + recvMusicList);
+                        peerMusicLists.addAll(recvMusicList);
+                    }else{
+                        System.out.println("get own IP, skip");
+                    }
                 }
 
                 System.out.println("peerMusicLists: output");
