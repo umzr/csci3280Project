@@ -1,5 +1,6 @@
 package newnetwork;
 
+import music.MusicProperty;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
@@ -7,6 +8,10 @@ import org.zeromq.ZMsg;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+
+import static music.MusicProperty.decodeMusicProperty;
+import static music.MusicProperty.flat2byteMusicProperty;
 
 public class P2PMusicStreaming {
     private final ZContext context;
@@ -14,6 +19,17 @@ public class P2PMusicStreaming {
     public P2PMusicStreaming() {
         context = new ZContext();
     }
+
+    private  ArrayList<MusicProperty> musicManager;
+
+    public void setMusicManager(ArrayList<MusicProperty> musicManager) {
+        this.musicManager = musicManager;
+    }
+
+    public ArrayList<MusicProperty> getMusicManager() {
+        return musicManager;
+    }
+
 
     public static P2PMusicStreaming run(String trackerAddress, String bindAddress) {
         P2PMusicStreaming app = new P2PMusicStreaming();
@@ -85,10 +101,10 @@ public class P2PMusicStreaming {
             List<String> searchResults = new ArrayList<>();
             for (String peer : onlinePeers) {
                 System.out.println("peer" + peer);
-                List<String> temp = app.sendSearchRequest(searchTerm, peer);
-                searchResults.addAll(temp);
+//                List<String> temp = app.sendSearchRequest(searchTerm, peer);
+//                searchResults.addAll(temp);
 
-                System.out.println("searchResults: " + temp);
+//                System.out.println("searchResults: " + temp);
 
                 System.out.println("-------------");
             }
@@ -156,16 +172,21 @@ public class P2PMusicStreaming {
         new Thread(() -> listenForAudioDataRequests(bindAddress)).start();
     }
 
-    public List<String> sendSearchRequest(String searchTerm, String targetPeerAddress) {
+    public ArrayList<MusicProperty>sendSearchRequest(String searchTerm, String targetPeerAddress) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
         socket.connect(targetPeerAddress);
         socket.send(searchTerm);
         ZMsg response = ZMsg.recvMsg(socket);
-        List<String> results = new ArrayList<>();
-        response.forEach(frame -> results.add(new String(frame.getData())));
+
+        byte[] recv = response.getFirst().getData();
+        ArrayList<MusicProperty> musicInfo = decodeMusicProperty(recv);
+        setMusicManager(musicInfo);
         socket.close();
-        return results;
+        return musicInfo;
     }
+
+
+
 
     public void listenForSearchRequests(String bindAddress) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REP);
@@ -174,13 +195,12 @@ public class P2PMusicStreaming {
         while (!Thread.currentThread().isInterrupted()) {
             String searchTerm = socket.recvStr();
             System.out.println("Received search request for " + searchTerm);
-            // Search local music files (mocked results for simplicity)
-            List<String> searchResults = new ArrayList<>();
-            searchResults.add("Song1 " + bindAddress);
-            searchResults.add("Song2 " + bindAddress);
+            ArrayList<MusicProperty> musicInfo = getMusicManager();
+
+            byte[] send = flat2byteMusicProperty(musicInfo);
 
             ZMsg response = new ZMsg();
-            searchResults.forEach(response::add);
+            response.add(send);
             response.send(socket);
         }
 

@@ -15,6 +15,28 @@ public class MusicManager {
         return musicInfo;
     }
 
+    public void setMusicInfo(ArrayList<MusicProperty> musicInfo) {
+        this.musicInfo = musicInfo;
+    }
+
+    public void printMusicInfo(ArrayList<MusicProperty> musicInfo) {
+        for (int i = 0; i < musicInfo.size(); i++) {
+            System.out.println(musicInfo.get(i).title);
+            System.out.println(musicInfo.get(i).duration);
+            System.out.println(musicInfo.get(i).artist);
+            System.out.println(musicInfo.get(i).album);
+            System.out.println(musicInfo.get(i).genre);
+            System.out.println(musicInfo.get(i).year);
+            System.out.println(musicInfo.get(i).comment);
+            System.out.println(musicInfo.get(i).channels);
+            System.out.println(musicInfo.get(i).rate);
+            System.out.println(musicInfo.get(i).bits);
+            System.out.println(musicInfo.get(i).path);
+            System.out.println(musicInfo.get(i).hasLrc);
+            System.out.println("--------------------");
+        }
+    }
+
     private void searchMusicPaths(String root) {
         File file = new File(root);
         if (file.isDirectory()) {
@@ -219,4 +241,6 @@ public class MusicManager {
         MusicManager musicManager = new MusicManager();
         musicManager.run();
     }
+
+
 }

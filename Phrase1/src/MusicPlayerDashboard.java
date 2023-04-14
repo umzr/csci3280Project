@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MusicPlayerDashboard implements ActionListener {
@@ -606,14 +607,16 @@ public class MusicPlayerDashboard implements ActionListener {
             }
         });
 
-
-
         P2PconnectButton = new JButton("P2Pconnect");
         P2PconnectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("P2Pconnect");
-                setApp(P2PMusicStreaming.run(serverIPaddress, clientIPaddress));
+                P2PMusicStreaming app = P2PMusicStreaming.run(serverIPaddress, clientIPaddress);
+                setApp(app);
+                syncMusicInfo();
+                ArrayList<MusicProperty> musicList = getMusicManager().getMusicInfo();
+                app.setMusicManager(musicList);
             }
         });
 
@@ -629,8 +632,14 @@ public class MusicPlayerDashboard implements ActionListener {
                 List<String> peerMusicLists = null;
                 for (String peer : onlinePeers) {
                     System.out.println("peer: " + peer);
-                    List<String> recvMusicList = app.sendSearchRequest("Na", peer);
+                    ArrayList<MusicProperty> recvMusicList = app.sendSearchRequest("Na", peer);
                     System.out.println("recvMusicList: " + recvMusicList);
+                    if(recvMusicList != null) {
+                        for (MusicProperty music : recvMusicList) {
+                            System.out.println("music: " + music);
+
+                        }
+                    }
 
                 }
 
