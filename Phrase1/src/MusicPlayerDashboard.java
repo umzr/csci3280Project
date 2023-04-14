@@ -281,6 +281,24 @@ public class MusicPlayerDashboard implements ActionListener {
         this.targetMusic = targetMusic;
     }
 
+    public void loadLibraryTableFromSearch(ArrayList<MusicProperty> musicProperties) {
+        LibraryTableModel.setRowCount(0);
+        for (MusicProperty musicProperty : musicProperties) {
+            LibraryTableModel.addRow(new Object[] {
+                    musicProperty.title,
+                    musicProperty.duration,
+                    musicProperty.artist,
+                    musicProperty.channels,
+                    musicProperty.rate,
+                    musicProperty.bits,
+                    musicProperty.album,
+                    musicProperty.genre,
+                    musicProperty.year,
+                    musicProperty.comment
+            });
+        }
+
+    }
     public void loadLibraryTable() {
         LibraryTableModel.setRowCount(0);
         for (MusicProperty musicProperty : musicManager.getMusicInfo()) {
@@ -629,23 +647,24 @@ public class MusicPlayerDashboard implements ActionListener {
                 P2PMusicStreaming app = getApp();
                 List<String> onlinePeers = app.getOnlinePeers(serverIPaddress);
                 System.out.println("onlinePeers: " + onlinePeers);
-                List<String> peerMusicLists = null;
+
+                // Initialize peerMusicLists outside the loop
+                ArrayList<MusicProperty> peerMusicLists = new ArrayList<MusicProperty>();
+
                 for (String peer : onlinePeers) {
                     System.out.println("peer: " + peer);
                     ArrayList<MusicProperty> recvMusicList = app.sendSearchRequest("Na", peer);
                     System.out.println("recvMusicList: " + recvMusicList);
-                    if(recvMusicList != null) {
-                        for (MusicProperty music : recvMusicList) {
-                            System.out.println("----------debug: " + music);
-
-                        }
-                    }
-
+                    peerMusicLists.addAll(recvMusicList);
                 }
 
-
+                System.out.println("peerMusicLists: output");
+                for(MusicProperty music: peerMusicLists){
+                    System.out.println(music.title);
+                }
+                loadLibraryTableFromSearch(peerMusicLists);
+                
             }
         });
-
     }
 }

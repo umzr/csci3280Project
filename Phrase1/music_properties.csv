@@ -1,11 +1,2 @@
 title,duration,artist,album,genre,year,path,comment,channels,rate,bits
-01. senya — 華鳥風月.wav,346.66666,,,,,E:\github\csci3280Project\Phrase1\.\src\Album\01. senya — 華鳥風月.wav,,2,44100.0,16
-香港料理Client1.wav,226.95184,,,,,E:\github\csci3280Project\Phrase1\.\src\Album\client1\香港料理Client1.wav,,2,44100.0,16
-華鳥風月Client2.wav,346.66666,,,,,E:\github\csci3280Project\Phrase1\.\src\Album\client2\華鳥風月Client2.wav,,2,44100.0,16
-浮誇Client3.wav,88.277855,,,,,E:\github\csci3280Project\Phrase1\.\src\Album\client3\浮誇Client3.wav,,2,48000.0,16
-苦瓜Client4.wav,90.0,,,,,E:\github\csci3280Project\Phrase1\.\src\Album\client4\苦瓜Client4.wav,,2,48000.0,16
-file_example.wav,58.993584,,,,,E:\github\csci3280Project\Phrase1\.\src\Album\file_example.wav,,2,44100.0,16
-浮誇.wav,88.277855,,,,,E:\github\csci3280Project\Phrase1\.\src\Album\浮誇.wav,,2,48000.0,16
-苦瓜.wav,90.0,,,,,E:\github\csci3280Project\Phrase1\.\src\Album\苦瓜.wav,,2,48000.0,16
-香港料理.wav,226.95184,,,,,E:\github\csci3280Project\Phrase1\.\src\Album\香港料理.wav,,2,44100.0,16
-香港料理dd.wav,226.95184,,,,,E:\github\csci3280Project\Phrase1\.\src\Album\香港料理dd.wav,,2,44100.0,16
+浮誇Client3.wav,88.277855,,,,,E:\github\csci3280Project\Phrase1\.\src\ClientMusic\client3\浮誇Client3.wav,,2,48000.0,16

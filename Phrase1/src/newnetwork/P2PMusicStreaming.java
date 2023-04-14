@@ -182,10 +182,13 @@ public class P2PMusicStreaming {
                     String searchTerm = recvArr[1];
                     System.out.println("Received search request for " + searchTerm);
                     ArrayList<MusicProperty> musicInfo = getMusicManager();
+
                     byte[] send = flat2byteMusicProperty(musicInfo);
+
                     ZMsg response = new ZMsg();
                     response.add(send);
                     response.send(socket);
+
                     break;
                 case "AVAILABILITY":
                     break;
@@ -206,19 +209,19 @@ public class P2PMusicStreaming {
         new Thread(() -> listenForAudioDataRequests(bindAddress)).start();
     }
 
-    public ArrayList<MusicProperty>sendSearchRequest(String searchTerm, String targetPeerAddress) {
+    public ArrayList<MusicProperty> sendSearchRequest(String searchTerm, String targetPeerAddress) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
+
+        List<String> target  = getOnlinePeers("tcp://localhost:4444");
         socket.connect(targetPeerAddress);
-        socket.send("SEARCH|STH");
+        socket.send("SEARCH|" + searchTerm);
         ZMsg response = ZMsg.recvMsg(socket);
 
         byte[] recv = response.getFirst().getData();
         ArrayList<MusicProperty> musicInfo = decodeMusicProperty(recv);
-        setMusicManager(musicInfo);
         socket.close();
         return musicInfo;
     }
-
 
 
 
