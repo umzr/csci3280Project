@@ -53,6 +53,9 @@ public class TrackerServer {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Enter the tracker server address (e.g., tcp://localhost:4444):");
         String trackerAddress = scanner.nextLine();
+        if(trackerAddress == null || trackerAddress.isBlank()){
+            trackerAddress = "tcp://localhost:4444";
+        }
 
         TrackerServer trackerServer = new TrackerServer();
         trackerServer.start(trackerAddress);
