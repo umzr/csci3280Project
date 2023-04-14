@@ -636,7 +636,7 @@ public class MusicPlayerDashboard implements ActionListener {
                     System.out.println("recvMusicList: " + recvMusicList);
                     if(recvMusicList != null) {
                         for (MusicProperty music : recvMusicList) {
-                            System.out.println("music: " + music);
+                            System.out.println("----------debug: " + music);
 
                         }
                     }

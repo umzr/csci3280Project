@@ -63,24 +63,38 @@ public class MusicProperty {
         String[] musicInfoString = new String(recv).split(",");
         for (String music : musicInfoString) {
             System.out.println("music: " + music);
-            String[] musicProperty = music.split("\\|");
-            System.out.println(Arrays.toString(musicProperty));
-//            musicInfo.add(new MusicProperty(musicProperty[0], Float.parseFloat(musicProperty[1]), musicProperty[2], musicProperty[3], musicProperty[4], musicProperty[5], musicProperty[6], musicProperty[7], Integer.parseInt(musicProperty[8]), Float.parseFloat(musicProperty[9]), Integer.parseInt(musicProperty[10]), Boolean.parseBoolean(musicProperty[11])));
+            String[] values = music.split("\\|");
             MusicProperty property = new MusicProperty();
-            property.title = musicProperty[0].isEmpty() ? null : musicProperty[0];
-            property.duration = Float.parseFloat(musicProperty[1]);
-            property.artist = musicProperty[2].isEmpty() ? null : musicProperty[2];
-            property.album = musicProperty[3].isEmpty() ? null : musicProperty[3];
-            property.genre = musicProperty[4].isEmpty() ? null : musicProperty[4];
-            property.year = musicProperty[5].isEmpty() ? null : musicProperty[5];
-            property.path = musicProperty[6].isEmpty() ? null : musicProperty[6];
-            property.comment = musicProperty[7].isEmpty() ? null : musicProperty[7];
-            property.channels = Integer.parseInt(musicProperty[8]);
-            property.rate = Float.parseFloat(musicProperty[9]);
-            property.bits = Integer.parseInt(musicProperty[10]);
-            property.hasLrc = Boolean.parseBoolean(musicProperty[11]);
-
+            property.title = values[0];
+            property.artist = values[2];
+            property.album = values[3];
+            property.genre = values[4];
+            property.year = values[5];
+            property.comment = values[7];
+            try{
+                property.channels = Integer.parseInt(values[8].strip());
+            } catch (NumberFormatException e) {
+                property.channels = 0;
+            }
+            try {
+                property.rate = Float.parseFloat(values[9].strip());
+            } catch (NumberFormatException e) {
+                property.rate = 0;
+            }
+            try {
+                property.bits = Integer.parseInt(values[10].strip());
+            } catch (NumberFormatException e) {
+                property.bits = 0;
+            }
+            property.path = values[6];
+            try {
+                property.duration = Float.parseFloat(values[1].strip());
+            } catch (NumberFormatException e) {
+                property.duration = 0;
+            }
             musicInfo.add(property);
+
+
         }
         return musicInfo;
     }

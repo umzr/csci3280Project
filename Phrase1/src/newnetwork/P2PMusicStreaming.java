@@ -34,7 +34,7 @@ public class P2PMusicStreaming {
     public static P2PMusicStreaming run(String trackerAddress, String bindAddress) {
         P2PMusicStreaming app = new P2PMusicStreaming();
         app.registerWithTracker(trackerAddress, bindAddress);
-        app.startListeners(bindAddress);
+        new Thread(() -> app.initStartListener(bindAddress)).start();
         List<String> onlinePeers = app.getOnlinePeers(trackerAddress);
         while (onlinePeers.isEmpty()) {
             System.out.println("No peers online. Waiting for peers to connect...");
@@ -63,7 +63,7 @@ public class P2PMusicStreaming {
         app.registerWithTracker(trackerAddress, bindAddress);
 
         // Start listeners for search, availability, and data requests
-        app.startListeners(bindAddress);
+//        app.startListeners(bindAddress);
 
         // Get the list of online peers from the tracker server
         List<String> onlinePeers = app.getOnlinePeers(trackerAddress);
@@ -166,6 +166,40 @@ public class P2PMusicStreaming {
         return peers;
     }
 
+
+    private void initStartListener (String bindAddress){
+
+        ZMQ.Socket socket = context.createSocket(ZMQ.REP);
+        socket.bind(bindAddress);
+        System.out.println("Listening for search requests on " + bindAddress);
+        while (!Thread.currentThread().isInterrupted()) {
+            String recv = socket.recvStr();
+            // recv --> action | <some args>
+
+            String[] recvArr = recv.split("\\|");
+            switch (recvArr[0]){
+                case "SEARCH":
+                    String searchTerm = recvArr[1];
+                    System.out.println("Received search request for " + searchTerm);
+                    ArrayList<MusicProperty> musicInfo = getMusicManager();
+                    byte[] send = flat2byteMusicProperty(musicInfo);
+                    ZMsg response = new ZMsg();
+                    response.add(send);
+                    response.send(socket);
+                    break;
+                case "AVAILABILITY":
+                    break;
+                default:
+                    System.out.println("Invalid request");
+                    break;
+            }
+
+        }
+
+        socket.close();
+
+
+    }
     private void startListeners(String bindAddress) {
         new Thread(() -> listenForSearchRequests(bindAddress)).start();
         new Thread(() -> listenForAvailabilityRequests(bindAddress)).start();
@@ -175,7 +209,7 @@ public class P2PMusicStreaming {
     public ArrayList<MusicProperty>sendSearchRequest(String searchTerm, String targetPeerAddress) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
         socket.connect(targetPeerAddress);
-        socket.send(searchTerm);
+        socket.send("SEARCH|STH");
         ZMsg response = ZMsg.recvMsg(socket);
 
         byte[] recv = response.getFirst().getData();
