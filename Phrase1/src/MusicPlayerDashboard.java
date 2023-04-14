@@ -533,7 +533,7 @@ public class MusicPlayerDashboard implements ActionListener {
         });
 
         LibraryLocationPath = new JFormattedTextField();
-        LibraryLocationPath.addActionListener(new ActionListener() {
+        /*LibraryLocationPath.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("LibraryLocationPath");
@@ -541,7 +541,7 @@ public class MusicPlayerDashboard implements ActionListener {
                 AlbumPath = path;
                 System.out.println(AlbumPath);
             }
-        });
+        });*/
 
         ClientName = new JFormattedTextField();
         ClientName.addActionListener(new ActionListener() {
@@ -563,6 +563,9 @@ public class MusicPlayerDashboard implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("SYNC...");
+                String path = LibraryLocationPath.getText();
+                AlbumPath = path;
+                System.out.println("LibraryLocationPath: "+AlbumPath);
                 syncMusicInfo();
                 loadLibraryTable();
 
@@ -586,7 +589,7 @@ public class MusicPlayerDashboard implements ActionListener {
         });
         
         serverIP = new JFormattedTextField();
-        serverIP.addActionListener(new ActionListener() {
+        /*serverIP.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("serverIP");
@@ -594,10 +597,10 @@ public class MusicPlayerDashboard implements ActionListener {
                 serverIPaddress = ip;
                 System.out.println("serverIPaddress: "+ serverIPaddress);
             }
-        });
+        });*/
 
         clientIP = new JFormattedTextField();
-        clientIP.addActionListener(new ActionListener() {
+        /*clientIP.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("clientIP");
@@ -605,18 +608,29 @@ public class MusicPlayerDashboard implements ActionListener {
                 clientIPaddress = ip;
                 System.out.println("clientIPaddress: "+ clientIPaddress);
             }
-        });
+        });*/
 
         P2PconnectButton = new JButton("P2Pconnect");
         P2PconnectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String serverip = serverIP.getText();
+                serverIPaddress = serverip;
+                System.out.println("serverIP: "+serverIPaddress );
+                String clientip = clientIP.getText();
+                clientIPaddress = clientip;
+                System.out.println("clinetIP: "+clientIPaddress);
                 System.out.println("P2Pconnect");
-                P2PMusicStreaming app = P2PMusicStreaming.run(serverIPaddress, clientIPaddress);
-                setApp(app);
-                syncMusicInfo();
-                ArrayList<MusicProperty> musicList = getMusicManager().getMusicInfo();
-                app.setMusicManager(musicList);
+
+                if(!serverIPaddress.equals("") && !clientIPaddress.equals("")){
+                    P2PMusicStreaming app = P2PMusicStreaming.run(serverIPaddress, clientIPaddress);
+                    setApp(app);
+                    syncMusicInfo();
+                    ArrayList<MusicProperty> musicList = getMusicManager().getMusicInfo();
+                    app.setMusicManager(musicList);
+                }else{
+                    System.out.println("IP is null");
+                }
             }
         });
 
