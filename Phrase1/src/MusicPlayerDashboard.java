@@ -298,6 +298,15 @@ public class MusicPlayerDashboard implements ActionListener {
         }
     }
 
+    public P2PMusicStreaming app = null;
+
+    public void setApp(P2PMusicStreaming app) {
+        this.app = app;
+    }
+     public P2PMusicStreaming getApp() {
+            return app;
+        }
+
     public LrcFileReader.LrcLine getLrcLine(int ms) throws IOException { // get the lrc line
         String lrcPath = targetMusic.Path.replace(".wav", ".lrc");
         if (targetMusic.property == null || !targetMusic.property.hasLrc)
@@ -597,13 +606,37 @@ public class MusicPlayerDashboard implements ActionListener {
             }
         });
 
+
+
         P2PconnectButton = new JButton("P2Pconnect");
         P2PconnectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("P2Pconnect");
-                P2PMusicStreaming.run(serverIPaddress, clientIPaddress);
+                setApp(P2PMusicStreaming.run(serverIPaddress, clientIPaddress));
             }
         });
+
+        P2PSync = new JButton("P2PSync");
+        P2PSync.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("P2PSync");
+
+                P2PMusicStreaming app = getApp();
+                List<String> onlinePeers = app.getOnlinePeers(serverIPaddress);
+                System.out.println("onlinePeers: " + onlinePeers);
+                List<String> peerMusicLists = null;
+                for (String peer : onlinePeers) {
+                    System.out.println("peer: " + peer);
+                    List<String> recvMusicList = app.sendSearchRequest("Na", peer);
+                    System.out.println("recvMusicList: " + recvMusicList);
+
+                }
+
+
+            }
+        });
+
     }
 }

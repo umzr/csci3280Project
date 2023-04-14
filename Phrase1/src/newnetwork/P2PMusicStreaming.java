@@ -15,8 +15,7 @@ public class P2PMusicStreaming {
         context = new ZContext();
     }
 
-    public static void run(String trackerAddress, String bindAddress) {
-
+    public static P2PMusicStreaming run(String trackerAddress, String bindAddress) {
         P2PMusicStreaming app = new P2PMusicStreaming();
         app.registerWithTracker(trackerAddress, bindAddress);
         app.startListeners(bindAddress);
@@ -33,6 +32,7 @@ public class P2PMusicStreaming {
         for(String peer : onlinePeers) {
             System.out.println(peer);
         }
+        return app;
     }
 
     public static void main(String[] args) {
@@ -148,22 +148,6 @@ public class P2PMusicStreaming {
             }
         }
         return peers;
-    }
-
-    private List<String> connectToServer(String serverAddress, String bindAddress) {
-        ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
-        socket.connect(serverAddress);
-
-        // Send the peer's bind address to the server
-        socket.send(bindAddress);
-
-        // Receive the list of connected peers from the server
-        ZMsg response = ZMsg.recvMsg(socket);
-        List<String> peerAddresses = new ArrayList<>();
-        response.forEach(frame -> peerAddresses.add(new String(frame.getData())));
-
-        socket.close();
-        return peerAddresses;
     }
 
     private void startListeners(String bindAddress) {

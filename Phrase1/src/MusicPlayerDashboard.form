@@ -101,7 +101,7 @@
                       <text value="SYNC!"/>
                     </properties>
                   </component>
-                  <component id="e245" class="javax.swing.JButton" binding="P2PSync">
+                  <component id="e245" class="javax.swing.JButton" binding="P2PSync" custom-create="true">
                     <constraints border-constraint="North"/>
                     <properties>
                       <text value="P2PSycn"/>
