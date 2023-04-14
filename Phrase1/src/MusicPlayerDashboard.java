@@ -327,7 +327,6 @@ public class MusicPlayerDashboard implements ActionListener {
         LibraryTableModel.addColumn("Genre");
         LibraryTableModel.addColumn("Year");
         LibraryTableModel.addColumn("Comment");
-        LibraryTableModel.addColumn("Net");
         getMusicManager().loadFromCsv(csvPath);
         loadLibraryTable();
         libraryTable.setModel(LibraryTableModel);
