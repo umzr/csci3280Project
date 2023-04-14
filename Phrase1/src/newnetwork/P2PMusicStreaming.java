@@ -225,6 +225,7 @@ public class P2PMusicStreaming {
 
 
 
+    //when receive request, send own song list to request sender
     public void listenForSearchRequests(String bindAddress) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REP);
         socket.bind(bindAddress);

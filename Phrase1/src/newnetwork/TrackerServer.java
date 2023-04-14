@@ -56,6 +56,7 @@ public class TrackerServer {
         if(trackerAddress == null || trackerAddress.isBlank()){
             trackerAddress = "tcp://localhost:4444";
         }
+        System.out.println("Server start at: "+trackerAddress);
 
         TrackerServer trackerServer = new TrackerServer();
         trackerServer.start(trackerAddress);
