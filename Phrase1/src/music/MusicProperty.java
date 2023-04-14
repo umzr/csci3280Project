@@ -18,7 +18,9 @@ public class MusicProperty {
     public int bits;
     public boolean hasLrc;
 
-    public MusicProperty(String title, float duration, String artist, String album, String genre, String year, String path, String comment, int channels, float rate, int bits, boolean hasLrc) {
+    public String ftpPath;
+
+    public MusicProperty(String title, float duration, String artist, String album, String genre, String year, String path, String comment, int channels, float rate, int bits, boolean hasLrc, String ftpPath) {
         this.title = title;
         this.duration = duration;
         this.artist = artist;
@@ -31,6 +33,7 @@ public class MusicProperty {
         this.rate = rate;
         this.bits = bits;
         this.hasLrc = hasLrc;
+        this.ftpPath = ftpPath;
     }
 
 
@@ -48,14 +51,22 @@ public class MusicProperty {
         rate = 0;
         bits = 0;
         hasLrc = false;
+        ftpPath = "";
     }
 
     @Override
     public String toString() {
-        return title + "|" + duration + "|" + artist + "|" + album + "|" + genre + "|" + year + "|" + path + "|" + comment + "|" + channels + "|" + rate + "|" + bits + "|" + hasLrc ;
+        return title + "|" + duration + "|" + artist + "|" + album + "|" + genre + "|" + year + "|" + path + "|" + comment + "|" + channels + "|" + rate + "|" + bits + "|" + hasLrc + "|" + ftpPath;
     }
 
-    public static byte[] flat2byteMusicProperty(ArrayList<MusicProperty> musicInfo) {
+    public static byte[] flat2byteMusicProperty(ArrayList<MusicProperty> musicInfo , String clientAddress) {
+
+        for(MusicProperty music : musicInfo) {
+            music.ftpPath = clientAddress;
+        }
+        for(MusicProperty music : musicInfo) {
+            System.out.println(music.toString());
+        }
         return musicInfo.stream().map(MusicProperty::toString).collect(Collectors.joining(",")).getBytes();
     }
 
@@ -92,6 +103,16 @@ public class MusicProperty {
                 property.duration = Float.parseFloat(values[1].strip());
             } catch (NumberFormatException e) {
                 property.duration = 0;
+            }
+            try {
+                property.hasLrc = Boolean.parseBoolean(values[11].strip());
+            } catch (NumberFormatException e) {
+                property.hasLrc = false;
+            }
+            try {
+                property.ftpPath = values[12].strip();
+            } catch (NumberFormatException e) {
+                property.ftpPath = "";
             }
             musicInfo.add(property);
 

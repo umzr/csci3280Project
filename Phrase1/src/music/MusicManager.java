@@ -33,6 +33,7 @@ public class MusicManager {
             System.out.println(musicInfo.get(i).bits);
             System.out.println(musicInfo.get(i).path);
             System.out.println(musicInfo.get(i).hasLrc);
+            System.out.println(musicInfo.get(i).ftpPath);
             System.out.println("--------------------");
         }
     }
@@ -129,6 +130,8 @@ public class MusicManager {
             System.out.println(musicInfo.get(i).channels);
             System.out.println(musicInfo.get(i).rate);
             System.out.println(musicInfo.get(i).bits);
+            System.out.println(musicInfo.get(i).hasLrc);
+            System.out.println("--------------------");
         }
     }
 

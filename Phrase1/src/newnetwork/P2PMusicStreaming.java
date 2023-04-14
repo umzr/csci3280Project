@@ -30,9 +30,16 @@ public class P2PMusicStreaming {
         return musicManager;
     }
 
-
+    public String ClientAddress = null;
+    public String getClientAddress() {
+        return ClientAddress;
+    }
+    public void setClientAddress(String clientAddress) {
+        ClientAddress = clientAddress;
+    }
     public static P2PMusicStreaming run(String trackerAddress, String bindAddress) {
         P2PMusicStreaming app = new P2PMusicStreaming();
+        app.setClientAddress(bindAddress);
         app.registerWithTracker(trackerAddress, bindAddress);
         new Thread(() -> app.initStartListener(bindAddress)).start();
         List<String> onlinePeers = app.getOnlinePeers(trackerAddress);
@@ -182,8 +189,8 @@ public class P2PMusicStreaming {
                     String searchTerm = recvArr[1];
                     System.out.println("Received search request for " + searchTerm);
                     ArrayList<MusicProperty> musicInfo = getMusicManager();
-
-                    byte[] send = flat2byteMusicProperty(musicInfo);
+                    String clinetAddress = getClientAddress();
+                    byte[] send = flat2byteMusicProperty(musicInfo, clinetAddress);
 
                     ZMsg response = new ZMsg();
                     response.add(send);
@@ -191,6 +198,8 @@ public class P2PMusicStreaming {
 
                     break;
                 case "AVAILABILITY":
+
+
                     break;
                 default:
                     System.out.println("Invalid request");
@@ -235,10 +244,10 @@ public class P2PMusicStreaming {
             System.out.println("Received search request for " + searchTerm);
             ArrayList<MusicProperty> musicInfo = getMusicManager();
 
-            byte[] send = flat2byteMusicProperty(musicInfo);
+//            byte[] send = flat2byteMusicProperty(musicInfo);
 
             ZMsg response = new ZMsg();
-            response.add(send);
+//            response.add(send);
             response.send(socket);
         }
 
