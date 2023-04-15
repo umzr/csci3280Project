@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.FutureTask;
@@ -541,6 +542,21 @@ public class MusicPlayerDashboard implements ActionListener {
                 List<String> onlinePeers = app.getOnlinePeers(serverIPaddress);
                 System.out.println("onlinePeers: " + onlinePeers);
 
+
+
+                HashSet<MusicProperty> peerMusicSet = new HashSet<MusicProperty>();
+                for (String peer : onlinePeers) {
+                    System.out.println("peer: " + peer);
+                    ArrayList<MusicProperty> recvMusicList = app.sendSearchRequest("Na", peer);
+                    System.out.println("recvMusicList: " + recvMusicList);
+                    // Use addAll method to add received music properties to the HashSet
+                    peerMusicSet.addAll(recvMusicList);
+                }
+                ArrayList<MusicProperty> peerMusicLists = new ArrayList<MusicProperty>(peerMusicSet);
+
+
+
+                /*
                 // Initialize peerMusicLists outside the loop
                 ArrayList<MusicProperty> peerMusicLists = new ArrayList<MusicProperty>();
 
@@ -550,6 +566,7 @@ public class MusicPlayerDashboard implements ActionListener {
                     System.out.println("recvMusicList: " + recvMusicList);
                     peerMusicLists.addAll(recvMusicList);
                 }
+                */
 
                 System.out.println("peerMusicLists: output");
                 for(MusicProperty music: peerMusicLists){

@@ -5,6 +5,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -16,7 +18,12 @@ public class MusicManager {
     private ArrayList<MusicProperty> musicInfoNetwork = new ArrayList<>();
 
     public List<MusicProperty> getMusicInfo() {
-        return Stream.concat(musicInfoLocal.stream(), musicInfoNetwork.stream()).collect(Collectors.toList());
+        LinkedHashSet<MusicProperty> musicInfoSet = new LinkedHashSet<>(musicInfoLocal);
+        musicInfoSet.addAll(musicInfoNetwork);
+
+        ArrayList<MusicProperty> mergedMusicInfo = new ArrayList<>(musicInfoSet);
+        return mergedMusicInfo;
+        //return Stream.concat(musicInfoLocal.stream(), musicInfoNetwork.stream()).collect(Collectors.toList());
     }
 
     public ArrayList<MusicProperty> getLocalMusicInfo() {

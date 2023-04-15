@@ -2,6 +2,7 @@ package music;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MusicProperty {
@@ -58,6 +59,30 @@ public class MusicProperty {
     public String toString() {
         return title + "|" + duration + "|" + artist + "|" + album + "|" + genre + "|" + year + "|" + path + "|" + comment + "|" + channels + "|" + rate + "|" + bits + "|" + hasLrc + "|" + ftpPath;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        MusicProperty other = (MusicProperty) obj;
+        if(!this.title.equals(other.title)) {
+            return false;
+        }
+        if(!this.artist.equals(other.artist))
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, artist, album);
+    }
+
 
     public static byte[] flat2byteMusicProperty(ArrayList<MusicProperty> musicInfo , String clientAddress) {
 
