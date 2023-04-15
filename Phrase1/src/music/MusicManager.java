@@ -5,18 +5,26 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MusicManager {
 
     private ArrayList<String> wavFiles = new ArrayList<String>();
-    private ArrayList<MusicProperty> musicInfo = new ArrayList<MusicProperty>();
+    private ArrayList<MusicProperty> musicInfoLocal = new ArrayList<>();
+    private ArrayList<MusicProperty> musicInfoNetwork = new ArrayList<>();
 
-    public ArrayList<MusicProperty> getMusicInfo() {
-        return musicInfo;
+    public List<MusicProperty> getMusicInfo() {
+        return Stream.concat(musicInfoLocal.stream(), musicInfoNetwork.stream()).collect(Collectors.toList());
+    }
+
+    public ArrayList<MusicProperty> getLocalMusicInfo() {
+        return musicInfoLocal;
     }
 
     public void setMusicInfo(ArrayList<MusicProperty> musicInfo) {
-        this.musicInfo = musicInfo;
+        this.musicInfoNetwork = musicInfo;
     }
 
     public void printMusicInfo(ArrayList<MusicProperty> musicInfo) {
@@ -99,11 +107,10 @@ public class MusicManager {
                 property.rate = format.getSampleRate();
                 property.bits = format.getSampleSizeInBits();
                 property.path = file.getPath();
-                property.ftpPath = "local";
                 property.duration = audioInputStream.getFrameLength() / format.getFrameRate();
                 searchLRC(property);
 
-                musicInfo.add(property);
+                musicInfoLocal.add(property);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -119,26 +126,26 @@ public class MusicManager {
     }
 
     public void printMusicProperty() {
-        for (int i = 0; i < musicInfo.size(); i++) {
-            System.out.println(musicInfo.get(i).title);
-            System.out.println(musicInfo.get(i).duration);
-            System.out.println(musicInfo.get(i).artist);
-            System.out.println(musicInfo.get(i).album);
-            System.out.println(musicInfo.get(i).genre);
-            System.out.println(musicInfo.get(i).year);
-            System.out.println(musicInfo.get(i).path);
-            System.out.println(musicInfo.get(i).comment);
-            System.out.println(musicInfo.get(i).channels);
-            System.out.println(musicInfo.get(i).rate);
-            System.out.println(musicInfo.get(i).bits);
-            System.out.println(musicInfo.get(i).hasLrc);
+        for (int i = 0; i < musicInfoLocal.size(); i++) {
+            System.out.println(musicInfoLocal.get(i).title);
+            System.out.println(musicInfoLocal.get(i).duration);
+            System.out.println(musicInfoLocal.get(i).artist);
+            System.out.println(musicInfoLocal.get(i).album);
+            System.out.println(musicInfoLocal.get(i).genre);
+            System.out.println(musicInfoLocal.get(i).year);
+            System.out.println(musicInfoLocal.get(i).path);
+            System.out.println(musicInfoLocal.get(i).comment);
+            System.out.println(musicInfoLocal.get(i).channels);
+            System.out.println(musicInfoLocal.get(i).rate);
+            System.out.println(musicInfoLocal.get(i).bits);
+            System.out.println(musicInfoLocal.get(i).hasLrc);
             System.out.println("--------------------");
         }
     }
 
     public void saveMusicPropertyToFile(String filePath) {
         try(FileWriter writer = new FileWriter(filePath)){
-            saveMusicProperty(this.musicInfo, writer);
+            saveMusicProperty(this.musicInfoLocal, writer);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -172,7 +179,7 @@ public class MusicManager {
             ArrayList<MusicProperty> musicInfo = loadFromCsv(reader);
             for (MusicProperty property : musicInfo) {
                 searchLRC(property);
-                this.musicInfo.add(property);
+                this.musicInfoLocal.add(property);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -225,7 +232,7 @@ public class MusicManager {
 
     public void reload(String rootPath) {
         wavFiles.clear();
-        musicInfo.clear();
+        musicInfoLocal.clear();
         searchMusicPaths(rootPath);
         printMusicPath();
         retrieveMusicProperty();

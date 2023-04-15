@@ -1,5 +1,6 @@
 package newnetwork;
 
+import music.MusicManager;
 import music.MusicProperty;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
@@ -8,16 +9,23 @@ import org.zeromq.ZMsg;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Scanner;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 import static music.MusicProperty.decodeMusicProperty;
 import static music.MusicProperty.flat2byteMusicProperty;
 
 public class P2PMusicStreaming {
+    public static final String AVAILABILITY = "AVAILABILITY";
+    public static final String AUDIOCHUNK = "AUDIOCHUNK";
     private final ZContext context;
     private String trackerAddress;
 
@@ -25,13 +33,13 @@ public class P2PMusicStreaming {
         context = new ZContext();
     }
 
-    private  ArrayList<MusicProperty> musicManager;
+    private  MusicManager musicManager;
 
-    public void setMusicManager(ArrayList<MusicProperty> musicManager) {
+    public void setMusicManager(MusicManager musicManager) {
         this.musicManager = musicManager;
     }
 
-    public ArrayList<MusicProperty> getMusicManager() {
+    public MusicManager getMusicManager() {
         return musicManager;
     }
 
@@ -42,7 +50,7 @@ public class P2PMusicStreaming {
     public void setClientAddress(String clientAddress) {
         ClientAddress = clientAddress;
     }
-    private String getTrackerAddress(){
+    public String getTrackerAddress(){
         if(trackerAddress != null){
             return trackerAddress;
         }
@@ -52,20 +60,14 @@ public class P2PMusicStreaming {
     public static P2PMusicStreaming run(String trackerAddress, String bindAddress) {
         P2PMusicStreaming app = new P2PMusicStreaming();
         app.setClientAddress(bindAddress);
-        app.registerWithTracker(trackerAddress, bindAddress);
+        app.registerWithTracker(trackerAddress);
         new Thread(() -> app.initStartListener(bindAddress)).start();
         List<String> onlinePeers = app.getOnlinePeers(trackerAddress);
-        while (onlinePeers.isEmpty()) {
-            System.out.println("No peers online. Waiting for peers to connect...");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            onlinePeers = app.getOnlinePeers(trackerAddress);
+        if(onlinePeers.isEmpty()){
+            System.out.println("No peers online.");
         }
-        for(String peer : onlinePeers) {
-            System.out.println(peer);
+        else{
+            System.out.println("Other online peers: " + String.join(", ", onlinePeers));
         }
         return app;
     }
@@ -79,7 +81,8 @@ public class P2PMusicStreaming {
         String bindAddress = scanner.nextLine();
 
         // Register with the tracker server
-        app.registerWithTracker(trackerAddress, bindAddress);
+        app.setClientAddress(bindAddress);
+        app.registerWithTracker(trackerAddress);
 
         // Start listeners for search, availability, and data requests
 //        app.startListeners(bindAddress);
@@ -138,14 +141,14 @@ public class P2PMusicStreaming {
         }
 
         // Unregister from the tracker server and exit the application
-        app.unregisterWithTracker(trackerAddress, bindAddress);
+        app.unregisterWithTracker();
         app.context.close();
     }
 
-    public void registerWithTracker(String trackerAddress, String peerAddress) {
+    public void registerWithTracker(String trackerAddress) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
         socket.connect(trackerAddress);
-        socket.send("REGISTER:" + peerAddress);
+        socket.send("REGISTER:" + this.getClientAddress());
         String response = socket.recvStr();
         if ("OK".equals(response)) {
             this.trackerAddress = trackerAddress;
@@ -156,17 +159,25 @@ public class P2PMusicStreaming {
         socket.close();
     }
 
-    public void unregisterWithTracker(String trackerAddress, String peerAddress) {
-        ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
-        socket.connect(trackerAddress);
-        socket.send("UNREGISTER:" + peerAddress);
-        String response = socket.recvStr();
-        if ("OK".equals(response)) {
-            System.out.println("Unregistered from tracker successfully.");
-        } else {
-            System.err.println("Failed to unregister from tracker.");
+    public void unregisterWithTracker() {
+        if(this.trackerAddress != null){
+            ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
+            socket.connect(this.getTrackerAddress());
+            socket.send("UNREGISTER:" + this.getClientAddress());
+            String response = socket.recvStr();
+            if ("OK".equals(response)) {
+                System.out.println("Unregistered from tracker successfully.");
+            } else {
+                System.err.println("Failed to unregister from tracker.");
+            }
+            socket.close();
+            this.trackerAddress = null;
         }
-        socket.close();
+    }
+
+    public void close(){
+        unregisterWithTracker();
+        context.close();
     }
 
     public List<String> getOnlinePeers(String trackerAddress) {
@@ -179,6 +190,7 @@ public class P2PMusicStreaming {
         List<String> peers = new ArrayList<>();
         if (peerList != null && !peerList.isEmpty()) {
             for (String address : peerList.split(",")) {
+                if(address.equals(this.getClientAddress())) continue;
                 System.out.println("There are peers online: " + address);
                 peers.add(address.trim());
             }
@@ -202,7 +214,7 @@ public class P2PMusicStreaming {
                 case "SEARCH":
                     String searchTerm = recvArr[1];
                     System.out.println("Received search request for " + searchTerm);
-                    ArrayList<MusicProperty> musicInfo = getMusicManager();
+                    ArrayList<MusicProperty> musicInfo = getMusicManager().getLocalMusicInfo();
                     String clinetAddress = getClientAddress();
                     byte[] send = flat2byteMusicProperty(musicInfo, clinetAddress);
 
@@ -211,7 +223,7 @@ public class P2PMusicStreaming {
                     response.send(socket);
 
                     break;
-                case "AVAILABILITY":
+                case AVAILABILITY:
                     String filepath = recvArr[1];
                     System.out.println("Received availability check for " + filepath);
                     response = new ZMsg();
@@ -219,16 +231,18 @@ public class P2PMusicStreaming {
                     response.add(new byte[]{(byte) (found ? 1 : 0)});
                     response.send(socket);
                     break;
-                case "AUDIOCHUNK":
+                case AUDIOCHUNK:
                     String request = recvArr[1];
                     String[] splitted = request.split(":");
                     String fp = splitted[0];
                     String chunkStr = splitted[1];
                     int chunk = Integer.parseInt(chunkStr);
+                    System.out.println("Received audio chunk request for " + request);
                     response = new ZMsg();
-                    byte[] chunkData = getAudioChunks(fp, chunk);
+                    String chunkData = getAudioChunks(fp, chunk);
                     response.add(chunkData);
                     response.send(socket);
+                    break;
                 default:
                     System.out.println("Invalid request");
                     break;
@@ -239,11 +253,6 @@ public class P2PMusicStreaming {
         socket.close();
 
 
-    }
-    private void startListeners(String bindAddress) {
-        new Thread(() -> listenForSearchRequests(bindAddress)).start();
-        new Thread(() -> listenForAvailabilityRequests(bindAddress)).start();
-        new Thread(() -> listenForAudioDataRequests(bindAddress)).start();
     }
 
     public ArrayList<MusicProperty> sendSearchRequest(String searchTerm, String targetPeerAddress) {
@@ -263,7 +272,7 @@ public class P2PMusicStreaming {
         ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
 
         socket.connect(targetPeerAddress);
-        socket.send("AVAILABILITY|" + filepath);
+        socket.send(AVAILABILITY + "|" + filepath);
         ZMsg response = ZMsg.recvMsg(socket);
         byte[] recv = response.getFirst().getData();
         boolean available = recv[0] == 1;
@@ -271,76 +280,56 @@ public class P2PMusicStreaming {
         return available;
     }
 
-    public void listenForSearchRequests(String bindAddress) {
-        ZMQ.Socket socket = context.createSocket(ZMQ.REP);
-        socket.bind(bindAddress);
-        System.out.println("Listening for search requests on " + bindAddress);
-        while (!Thread.currentThread().isInterrupted()) {
-            String searchTerm = socket.recvStr();
-            System.out.println("Received search request for " + searchTerm);
-            ArrayList<MusicProperty> musicInfo = getMusicManager();
-
-//            byte[] send = flat2byteMusicProperty(musicInfo);
-
-            ZMsg response = new ZMsg();
-//            response.add(send);
-            response.send(socket);
+    private byte[] compress(byte[] data){
+        Deflater deflater = new Deflater(Deflater.BEST_SPEED);
+        deflater.setInput(data);
+        deflater.finish();
+        try(ByteArrayOutputStream bos = new ByteArrayOutputStream()){
+            byte[] subchunks = new byte[1024];
+            while (!deflater.finished()){
+                int readed = deflater.deflate(subchunks);
+                if(readed > 0) bos.write(subchunks, 0, readed);
+            }
+            return bos.toByteArray();
+        } catch (IOException e) {
+            return data;
         }
-
-        socket.close();
     }
 
-    public void listenForAvailabilityRequests(String bindAddress) {
-        ZMQ.Socket socket = context.createSocket(ZMQ.REP);
-        socket.bind(bindAddress);
-
-        while (!Thread.currentThread().isInterrupted()) {
-            String fileName = socket.recvStr();
-            // Check if the file exists locally (mocked response for simplicity)
-            boolean fileExists = true;
-            socket.send(fileExists ? "1" : "0");
+    private byte[] decompress(byte[] compressedData){
+        Inflater inflater = new Inflater();
+        inflater.setInput(compressedData);
+        try(ByteArrayOutputStream bos = new ByteArrayOutputStream()){
+            byte[] subchunks = new byte[1024];
+            while (!inflater.finished()){
+                int readed = inflater.inflate(subchunks);
+                if(readed > 0) bos.write(subchunks, 0, readed);
+            }
+            return bos.toByteArray();
+        } catch (IOException | DataFormatException e) {
+            e.printStackTrace();
+            return compressedData;
         }
-
-        socket.close();
     }
 
-    public void listenForAudioDataRequests(String bindAddress) {
-//        ZMQ.Socket socket = context.createSocket(ZMQ.REP);
-//        socket.bind(bindAddress);
-//
-//        while (!Thread.currentThread().isInterrupted()) {
-//            String fileName = socket.recvStr();
-//            // Send the requested audio data chunks (omitted
-//
-//            // Retrieve audio file chunks and send them
-//            List<byte[]> audioChunks = getAudioChunks(fileName, 0);
-//            ZMsg audioData = new ZMsg();
-//            for (byte[] chunk : audioChunks) {
-//                audioData.add(chunk);
-//            }
-//            audioData.send(socket);
-//        }
-//
-//        socket.close();
-    }
-
-    private byte[] getAudioChunks(String fileName, int chunk) {
+    private String getAudioChunks(String fileName, int chunk) {
         // Load and divide the audio file into smaller chunks
         try(AudioInputStream ais = AudioSystem.getAudioInputStream(new File(fileName))) {
-            ais.skip((long) chunk * ais.getFormat().getFrameSize());
-            byte[] data = new byte[Math.toIntExact(ais.getFrameLength())];
+            ais.skip((long) (chunk * ais.getFormat().getFrameSize() * ais.getFormat().getSampleRate()));
+            byte[] data = new byte[Math.toIntExact((long) (ais.getFormat().getFrameSize() * ais.getFormat().getSampleRate()))];
             int readed = ais.read(data);
-            if(readed < 0) return new byte[0];
+            if(readed < 0) return "0";
             if(readed != data.length){
                 byte[] tmp = data;
                 data = new byte[readed];
                 System.arraycopy(tmp, 0, data, 0, readed);
             }
-            return data;
+            byte[] compressed = compress(data);
+            return Base64.getEncoder().encodeToString(compressed);
         } catch (UnsupportedAudioFileException | IOException e) {
             e.printStackTrace();
         }
-        return new byte[0];
+        return "0";
     }
 
     public void playAudioInterleaved(String fileName, List<String> peerAddresses) {
@@ -355,8 +344,17 @@ public class P2PMusicStreaming {
     public byte[] requestAudioChunk(String targetPeerAddress, String fileName, int chunkIndex) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
         socket.connect(targetPeerAddress);
-        socket.send("AUDIOCHUNK|" + fileName + ":" + chunkIndex);
-        byte[] chunkData = socket.recv();
+        socket.send(AUDIOCHUNK + "|" + fileName + ":" + chunkIndex);
+        var recvStr = socket.recvStr();
+        byte[] chunkData;
+        if(recvStr.equals("0")){
+            // a single '0' string must not be in base64. It is safe to indicate receiving nothing
+            chunkData = new byte[0];
+        }
+        else{
+            chunkData = Base64.getDecoder().decode(recvStr);
+            chunkData = decompress(chunkData);
+        }
         socket.close();
         return chunkData;
     }

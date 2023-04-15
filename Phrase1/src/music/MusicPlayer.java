@@ -1,15 +1,21 @@
 package music;
 
+import newnetwork.MusicStreamer;
+import newnetwork.P2PMusicStreaming;
+
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class MusicPlayer {
+    private final Supplier<P2PMusicStreaming> networkAppGetter;
     private SourceDataLine dataLine;
     private MusicProperty musicPlaying;
     private InputStream inputStream;
+    private MusicStreamer streamer;
     private int currentPos;
     private int bufferSize;
     Object playLock;
@@ -18,28 +24,38 @@ public class MusicPlayer {
     private boolean playing = false;
     private CompletableFuture playingTask;
 
-    public MusicPlayer(){
+    public MusicPlayer(Supplier<P2PMusicStreaming> networkApp){
+        this.networkAppGetter = networkApp;
         bufferSize = 44100;
     }
 
     public void stop(){
+        if(playingTask != null){
+            playingTask.cancel(true);
+            playingTask = null;
+        }
+        if(inputStream != null){
+            try {
+                inputStream.close();
+                inputStream = null;
+            } catch (IOException e) {
+
+            }
+        }
         playing = false;
+        currentPos = 0;
         dataLine.drain();
         dataLine.stop();
-        currentPos = 0;
         musicPlaying = null;
         volumeCtrl = null;
-        try {
-            inputStream.close();
-            inputStream = null;
-        } catch (IOException e) {
-
-        }
     }
 
     public void startPlayMusic(MusicProperty property, boolean isLocal){
-        initialize(property, isLocal);
-        play();
+        initialize(property, isLocal).thenAccept(success -> {
+            if(success) {
+                play();
+            }
+        });
     }
 
     public void setVolume(float volumeLinear){
@@ -61,27 +77,23 @@ public class MusicPlayer {
 
     public void play(){
         playingTask = CompletableFuture.runAsync(() -> {
-            playLock = new Object();
-
-            synchronized (playLock){
-               playing = true;
-               currentPos = 0;
-               dataLine.start();
-               byte[] data = new byte[bufferSize];
-               try {
-                   int dataRead;
-                   while((dataRead = inputStream.read(data)) != -1){
-                       currentPos += dataRead;
-                       while(!playing) playLock.wait();
-                       dataLine.write(data, 0, data.length);
-                   }
-               } catch (IOException e) {
-
-               } catch (InterruptedException e) {
-                   e.printStackTrace();
+           playing = true;
+           currentPos = 0;
+           dataLine.start();
+           byte[] data = new byte[bufferSize];
+           try {
+               int dataRead;
+               while((dataRead = inputStream.read(data)) != -1){
+                   currentPos += dataRead;
+                   while(!playing) wait(500);
+                   dataLine.write(data, 0, data.length);
                }
-               close();
-            }
+           } catch (IOException e) {
+
+           } catch (InterruptedException e) {
+               e.printStackTrace();
+           }
+           close();
         });
     }
 
@@ -97,19 +109,33 @@ public class MusicPlayer {
         return this.dataLine != null && this.dataLine.isOpen();
     }
 
-    void initialize(MusicProperty property, boolean isLocal){
+    CompletableFuture<Boolean> initialize(MusicProperty property, boolean isLocal){
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, new AudioFormat(property.rate, property.bits, property.channels, property.bits > 8, false));
         try{
-            if(isLocal){
-                inputStream = AudioSystem.getAudioInputStream(new File(property.path));
-            }
             this.dataLine = (SourceDataLine) AudioSystem.getLine(info);
             this.dataLine.open();
             volumeCtrl = (FloatControl) this.dataLine.getControl(FloatControl.Type.MASTER_GAIN);
             musicPlaying = property;
+            if(isLocal){
+                inputStream = AudioSystem.getAudioInputStream(new File(property.path));
+            }
+            else{
+                P2PMusicStreaming app = this.networkAppGetter.get();
+                if(app == null) return CompletableFuture.completedFuture(false);
+                return CompletableFuture.supplyAsync(() -> app.getOnlinePeers(app.getTrackerAddress()))
+                        .handle((peers, ex) -> {
+                            if(ex != null) return false;
+                            MusicPlayer.this.streamer = new MusicStreamer(app, property.path, peers);
+                            streamer.streamingJobs();
+                            inputStream = streamer.getAudioStream();
+                            return true;
+                        });
+            }
         } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
             e.printStackTrace();
+            return CompletableFuture.completedFuture(false);
         }
+        return CompletableFuture.completedFuture(true);
     }
 
     public void close(){
@@ -119,6 +145,7 @@ public class MusicPlayer {
             playing = false;
             musicPlaying = null;
             volumeCtrl = null;
+            playingTask = null;
             if(inputStream != null) {
                 try {
                     inputStream.close();

@@ -16,6 +16,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.FutureTask;
+import java.util.function.Supplier;
 
 public class MusicPlayerDashboard implements ActionListener {
     private JTabbedPane MusicPlayerFeature;
@@ -192,23 +195,28 @@ public class MusicPlayerDashboard implements ActionListener {
     }
 
     public void setVolume() {
-        if (clip != null) {
-            FloatControl ctrl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            if (volumeSlider.getValue() == 0) {
-                ctrl.setValue(ctrl.getMinimum());
-            } else {
-                float db = 20 * (float) Math.log10((float) volumeSlider.getValue() / volumeSlider.getMaximum());
-                db = Math.max(db, ctrl.getMinimum());
-                ctrl.setValue(db);
-            }
-        }
+        player.setVolume((float) volumeSlider.getValue() / volumeSlider.getMaximum());
+//        if (clip != null) {
+//            FloatControl ctrl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+//            if (volumeSlider.getValue() == 0) {
+//                ctrl.setValue(ctrl.getMinimum());
+//            } else {
+//                float db = 20 * (float) Math.log10((float) volumeSlider.getValue() / volumeSlider.getMaximum());
+//                db = Math.max(db, ctrl.getMinimum());
+//                ctrl.setValue(db);
+//            }
+//        }
     }
 
     public boolean isMusicLocal(TargetMusic music){
-        return "local".equals(music.tcpClient) || clientIPaddress.equals(targetMusic.tcpClient);
+        return music.tcpClient == null || music.tcpClient.isEmpty() || clientIPaddress.equals(music.tcpClient);
     }
 
-    public MusicPlayerDashboard() throws IOException {
+    public MusicPlayerDashboard() {
+
+    }
+
+    private void init(){
         JFrame frame = new JFrame("MusicPlayerDashboard");
         frame.setContentPane(this.MusicPlayer);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -222,7 +230,7 @@ public class MusicPlayerDashboard implements ActionListener {
             setVolume();
         });
 
-        player = new MusicPlayer();
+        player = new MusicPlayer(this::getApp);
     }
 
     @Override
@@ -323,13 +331,18 @@ public class MusicPlayerDashboard implements ActionListener {
 //            clip.stop();
 //            clip.close();
             musicProgressBar.setValue(0);
-            musicTime.setText("0:0 / 0:0");
+            musicTime.setText("0:00 / 0:00");
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         MusicPlayerDashboard player = new MusicPlayerDashboard();
-
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if(player.getApp() != null){
+                CompletableFuture.runAsync(() -> player.getApp().unregisterWithTracker());
+            }
+        }));
+        player.init();
     }
 
     private void createUIComponents() {
@@ -504,12 +517,14 @@ public class MusicPlayerDashboard implements ActionListener {
                 System.out.println("clinetIP: "+clientIPaddress);
                 System.out.println("P2Pconnect");
 
-                if(!serverIPaddress.equals("") && !clientIPaddress.equals("")){
+                if(!serverIPaddress.isEmpty() && !clientIPaddress.isEmpty()){
+                    if(MusicPlayerDashboard.this.app != null){
+                        MusicPlayerDashboard.this.app.close();
+                    }
                     P2PMusicStreaming app = P2PMusicStreaming.run(serverIPaddress, clientIPaddress);
                     setApp(app);
                     syncMusicInfo();
-                    ArrayList<MusicProperty> musicList = getMusicManager().getMusicInfo();
-                    app.setMusicManager(musicList);
+                    app.setMusicManager(getMusicManager());
                 }else{
                     System.out.println("IP is null");
                 }
@@ -531,20 +546,18 @@ public class MusicPlayerDashboard implements ActionListener {
 
                 for (String peer : onlinePeers) {
                     System.out.println("peer: " + peer);
-                    if(!peer.equals(clientIP)) {
-                        ArrayList<MusicProperty> recvMusicList = app.sendSearchRequest("Na", peer);
-                        System.out.println("recvMusicList: " + recvMusicList);
-                        peerMusicLists.addAll(recvMusicList);
-                    }else{
-                        System.out.println("get own IP, skip");
-                    }
+                    ArrayList<MusicProperty> recvMusicList = app.sendSearchRequest("Na", peer);
+                    System.out.println("recvMusicList: " + recvMusicList);
+                    peerMusicLists.addAll(recvMusicList);
                 }
 
                 System.out.println("peerMusicLists: output");
                 for(MusicProperty music: peerMusicLists){
                     System.out.println(music.title);
                 }
-                loadLibraryTableFromSearch(peerMusicLists);
+                musicManager.setMusicInfo(peerMusicLists);
+                loadLibraryTable();
+//                loadLibraryTableFromSearch(peerMusicLists);
 
             }
         });

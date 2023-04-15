@@ -18,6 +18,7 @@ public class MusicStreamer {
     private PriorityQueue<QueuedChunkWrapper> queuedChunks = new PriorityQueue<>();
     private AtomicInteger lastFedChunkNumber = new AtomicInteger(-1);
     private CompletableFuture<Void> streamingTask;
+    private boolean open;
 
     public MusicStreamer(P2PMusicStreaming app, String file, List<String> peerAddress){
         this.app = app;
@@ -25,7 +26,8 @@ public class MusicStreamer {
         this.peerAddress = peerAddress;
         chunkFeedingStream = new PipedOutputStream();
         try {
-            audioStream = new PipedInputStream(chunkFeedingStream);
+            audioStream = new PipedInputStream(chunkFeedingStream, 44100);
+            open = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,7 +67,7 @@ public class MusicStreamer {
                                         lastFedChunkNumber.getAndIncrement();
                                         queuedChunks.poll();
                                     } catch (IOException e) {
-                                        e.printStackTrace();
+                                        break;
                                     }
                                 }
                             }
@@ -97,10 +99,21 @@ public class MusicStreamer {
                             if(!hasRunning) break;
                         }
                     }
+                    try {
+                        this.audioStream.close();
+                        open = false;
+                        this.chunkFeedingStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                 });
         this.streamingTask = task;
         return task;
+    }
+
+    public boolean isOpen(){
+        return audioStream != null && open;
     }
 
     public static class QueuedChunkWrapper implements Comparable<QueuedChunkWrapper>{
