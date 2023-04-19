@@ -5,6 +5,8 @@ import newnetwork.P2PMusicStreaming;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -18,10 +20,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class MusicPlayerDashboard implements ActionListener {
+    private JFrame rootFrame;
     private JTabbedPane MusicPlayerFeature;
     private JPanel HomeTab;
     private JPanel LibraryTab;
@@ -51,12 +56,10 @@ public class MusicPlayerDashboard implements ActionListener {
     private JFormattedTextField lyricsRealtimeText;
     private JLabel lyricsRealtimeLabel;
     private JFormattedTextField serverIP;
-    private JButton severOKBtn;
     private JButton P2PconnectButton;
     private JLabel serverLabel;
     private JLabel clientLabel;
     private JFormattedTextField clientIP;
-    private JButton clientOKBtn;
     private JButton P2PSync;
     private JFormattedTextField LibraryLocationPath;
     private JButton NOUSEButton;
@@ -74,6 +77,7 @@ public class MusicPlayerDashboard implements ActionListener {
     public String userName = "Client1";
     public String serverIPaddress = "tcp://localhost:4444"; // default server address
     public String clientIPaddress = "tcp://localhost:5555"; // default client address
+    private CompletableFuture lastConnectionTask;
 
     public MusicManager getMusicManager() {
         if (musicManager == null) {
@@ -142,7 +146,8 @@ public class MusicPlayerDashboard implements ActionListener {
                     musicProperty.album,
                     musicProperty.genre,
                     musicProperty.year,
-                    musicProperty.comment
+                    musicProperty.comment,
+                    !musicProperty.ftpPath.equals(clientIPaddress) ? musicProperty.ftpPath : ""
             });
         }
     }
@@ -197,16 +202,6 @@ public class MusicPlayerDashboard implements ActionListener {
 
     public void setVolume() {
         player.setVolume((float) volumeSlider.getValue() / volumeSlider.getMaximum());
-//        if (clip != null) {
-//            FloatControl ctrl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-//            if (volumeSlider.getValue() == 0) {
-//                ctrl.setValue(ctrl.getMinimum());
-//            } else {
-//                float db = 20 * (float) Math.log10((float) volumeSlider.getValue() / volumeSlider.getMaximum());
-//                db = Math.max(db, ctrl.getMinimum());
-//                ctrl.setValue(db);
-//            }
-//        }
     }
 
     public boolean isMusicLocal(TargetMusic music){
@@ -218,11 +213,11 @@ public class MusicPlayerDashboard implements ActionListener {
     }
 
     private void init(){
-        JFrame frame = new JFrame("MusicPlayerDashboard");
-        frame.setContentPane(this.MusicPlayer);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
+        rootFrame = new JFrame("MusicPlayerDashboard");
+        rootFrame.setContentPane(this.MusicPlayer);
+        rootFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        rootFrame.pack();
+        rootFrame.setVisible(true);
 
         startButton.addActionListener(this);
         stopButton.addActionListener(this);
@@ -238,40 +233,25 @@ public class MusicPlayerDashboard implements ActionListener {
     public void actionPerformed(ActionEvent event) {
         if (event.getSource() == startButton) {
             try {
-//                if (clip != null && clip.isRunning()) {
-//                    clip.stop();
-//                    clip.setMicrosecondPosition(0);
-//                }
+
                 if(player.isPlaying()){
                     player.stop();
                 }
 
                 player.startPlayMusic(targetMusic.property, isMusicLocal(targetMusic));
-//                AudioInputStream audioInputStream;
-//                if(isMusicLocal(targetMusic)){
-//                    audioInputStream = AudioSystem.getAudioInputStream(new File(targetMusic.Path));
-//                }
-//                else{
-//
-//                }
-//                clip = AudioSystem.getClip();
-//                clip.open(audioInputStream);
-//                setVolume();
 
                 // Set the maximum value of the progress bar to the length of the audio file
                 musicProgressBar.setMaximum((int) targetMusic.duration);
-//                musicProgressBar.setMaximum((int) clip.getMicrosecondLength() / 1000);
 
                 // Create a SwingWorker to play the audio and update the progress bar in the
                 // background
-                SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
+                SwingWorker<Void, Integer> worker = new SwingWorker<>() {
 
                     @Override
                     protected Void doInBackground() throws Exception {
-//                        clip.start();
                         System.out.println("latestPosition");
                         boolean oncePlayed = false;
-                        while(player.isOpen()){
+                        while (player.isOpen()) {
                             if (oncePlayed && !player.isPlaying())
                                 break;
                             if (!oncePlayed && player.isPlaying())
@@ -280,20 +260,6 @@ public class MusicPlayerDashboard implements ActionListener {
                             publish(position); // publish the position to update the progress bar on the EDT
                             Thread.sleep(1000);
                         }
-//                        while (clip != null && clip.isOpen()) {
-//                            // it is not necessary that the clip is running right after clip.start() is
-//                            // called,
-//                            // therefore we have a flag such that the loop gets break only if the clip was
-//                            // running
-//                            // and stopped
-//                            if (oncePlayed && !clip.isRunning())
-//                                break;
-//                            if (!oncePlayed && clip.isRunning())
-//                                oncePlayed = true;
-//                            int position = (int) clip.getMicrosecondPosition() / 1000;
-//                            publish(position); // publish the position to update the progress bar on the EDT
-//                            Thread.sleep(1000);
-//                        }
                         return null;
                     }
 
@@ -329,8 +295,6 @@ public class MusicPlayerDashboard implements ActionListener {
         } else if (event.getSource() == stopButton) {
             player.stop();
             player.close();
-//            clip.stop();
-//            clip.close();
             musicProgressBar.setValue(0);
             musicTime.setText("0:00 / 0:00");
         }
@@ -510,6 +474,10 @@ public class MusicPlayerDashboard implements ActionListener {
         P2PconnectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (lastConnectionTask != null && !lastConnectionTask.isDone()){
+                    System.out.println("Still connecting!");
+                    return;
+                }
                 String serverip = serverIP.getText();
                 serverIPaddress = serverip;
                 System.out.println("serverIP: "+serverIPaddress );
@@ -521,11 +489,17 @@ public class MusicPlayerDashboard implements ActionListener {
                 if(!serverIPaddress.isEmpty() && !clientIPaddress.isEmpty()){
                     if(MusicPlayerDashboard.this.app != null){
                         MusicPlayerDashboard.this.app.close();
+                        MusicPlayerDashboard.this.app = null;
                     }
-                    P2PMusicStreaming app = P2PMusicStreaming.run(serverIPaddress, clientIPaddress);
-                    setApp(app);
-                    syncMusicInfo();
-                    app.setMusicManager(getMusicManager());
+                    P2PMusicStreaming app = null;
+                    try {
+                        app = P2PMusicStreaming.run(serverIPaddress, clientIPaddress);
+                        setApp(app);
+                        syncMusicInfo();
+                        app.setMusicManager(getMusicManager());
+                    } catch (RuntimeException ex) {
+                        JOptionPane.showMessageDialog(rootFrame, "cannot connect to tracker server");
+                    }
                 }else{
                     System.out.println("IP is null");
                 }
@@ -544,7 +518,7 @@ public class MusicPlayerDashboard implements ActionListener {
 
 
 
-                HashSet<MusicProperty> peerMusicSet = new HashSet<MusicProperty>();
+                HashSet<MusicProperty> peerMusicSet = new HashSet<>();
                 for (String peer : onlinePeers) {
                     System.out.println("peer: " + peer);
                     ArrayList<MusicProperty> recvMusicList = app.sendSearchRequest("Na", peer);

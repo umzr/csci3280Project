@@ -1,36 +1,44 @@
 package newnetwork;
 
+import music.MusicProperty;
+
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MusicStreamer {
     private final String file;
+    private final MusicProperty property;
     private final List<String> peerAddress;
     private final P2PMusicStreaming app;
     private PipedInputStream audioStream;
     private PipedOutputStream chunkFeedingStream;
     private PriorityQueue<QueuedChunkWrapper> queuedChunks = new PriorityQueue<>();
-    private AtomicInteger lastFedChunkNumber = new AtomicInteger(-1);
+//    private AtomicInteger lastFedChunkNumber = new AtomicInteger(-1);
+    private int lastFedChunkNumber = -1;
     private CompletableFuture<Void> streamingTask;
+    private InterleaveJobAllocator allocator;
     private boolean open;
 
-    public MusicStreamer(P2PMusicStreaming app, String file, List<String> peerAddress){
+    public MusicStreamer(P2PMusicStreaming app, MusicProperty property, List<String> peerAddress){
         this.app = app;
-        this.file = file;
+        this.file = property.path;
+        this.property = property;
         this.peerAddress = peerAddress;
         chunkFeedingStream = new PipedOutputStream();
         try {
-            audioStream = new PipedInputStream(chunkFeedingStream, 44100);
+            audioStream = new PipedInputStream(chunkFeedingStream, (int) (property.bits / 8 * property.channels * property.rate) * 10 );
             open = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public int getLastFedChunkNumber() {
+        return lastFedChunkNumber;
     }
 
     public PipedInputStream getAudioStream() {
@@ -55,16 +63,17 @@ public class MusicStreamer {
         CompletableFuture task = CompletableFuture.allOf(checkAvailabilityTask.toArray(new CompletableFuture[0]))
                 .whenComplete((v, ex) -> {
                     if(this.peerAddress.size() > 0){
+                        MusicStreamer.this.allocator = new InterleaveJobAllocator(this.peerAddress, (int)Math.ceil(property.duration));
                         Map<String, StreamingPeerStatus> statuses = new HashMap<>();
                         while (true){
                             QueuedChunkWrapper firstWrapper = queuedChunks.peek();
                             boolean hasRunning = false;
                             if (firstWrapper != null) {
                                 hasRunning = true;
-                                if (firstWrapper.chunkNum == lastFedChunkNumber.get() + 1) {
+                                if (firstWrapper.chunkNum == lastFedChunkNumber + 1) {
                                     try {
                                         chunkFeedingStream.write(firstWrapper.getBuffer());
-                                        lastFedChunkNumber.getAndIncrement();
+                                        lastFedChunkNumber++;
                                         queuedChunks.poll();
                                     } catch (IOException e) {
                                         break;
@@ -81,22 +90,28 @@ public class MusicStreamer {
                                 if (peerStatus.ended) continue;
                                 hasRunning = true;
                                 if (peerStatus.isReadyForNextRequest()) {
-                                    if(peerStatus.lastChunkIdx == -1) peerStatus.lastChunkIdx = i;
-                                    else peerStatus.lastChunkIdx += address.size();
-                                    var completableFuture = CompletableFuture.runAsync(() -> {
-                                        int thisChunkIdx = peerStatus.lastChunkIdx;
-                                        var audioChunk = app.requestAudioChunk(peer, this.file, peerStatus.lastChunkIdx);
-                                        if(audioChunk.length == 0){
-                                            peerStatus.ended = true;
-                                        }
-                                        else{
-                                            queuedChunks.add(new QueuedChunkWrapper(thisChunkIdx, audioChunk));
-                                        }
-                                    });
-                                    peerStatus.lastFuture = completableFuture;
+                                    Integer chunkIdx = allocator.getNextJob(peer);
+                                    if(chunkIdx == null) peerStatus.ended = true;
+                                    else{
+                                        var completableFuture = CompletableFuture.runAsync(() -> {
+                                            var audioChunk = app.requestAudioChunk(peer, this.file, chunkIdx);
+                                            if(audioChunk.length == 0){
+                                                peerStatus.ended = true;
+                                            }
+                                            else{
+                                                queuedChunks.add(new QueuedChunkWrapper(chunkIdx, audioChunk));
+                                            }
+                                        });
+                                        peerStatus.lastFuture = completableFuture;
+                                    }
                                 }
                             }
-                            if(!hasRunning) break;
+                            if(firstWrapper != null && firstWrapper.chunkNum > lastFedChunkNumber + 1 &&
+                                    statuses.values().stream().allMatch(status -> status.ended)){
+                                allocator.assignJob(address.get(0), lastFedChunkNumber + 1);
+                            }
+                            if(!hasRunning)
+                                break;
                         }
                     }
                     try {
