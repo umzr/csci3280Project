@@ -5,8 +5,6 @@ import newnetwork.P2PMusicStreaming;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -14,16 +12,11 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 public class MusicPlayerDashboard implements ActionListener {
     private JFrame rootFrame;
@@ -65,6 +58,7 @@ public class MusicPlayerDashboard implements ActionListener {
     private JButton NOUSEButton;
     private JLabel CSVPath;
     private JFormattedTextField ClientName;
+    private JEditorPane ConnectTCPMessage;
 
     private DefaultTableModel LibraryTableModel;
 
@@ -78,6 +72,22 @@ public class MusicPlayerDashboard implements ActionListener {
     public String serverIPaddress = "tcp://localhost:4444"; // default server address
     public String clientIPaddress = "tcp://localhost:5555"; // default client address
     private CompletableFuture lastConnectionTask;
+
+
+    public ArrayList<String> TCPIP = new ArrayList<String>();
+
+
+    public String getTcpIP() {
+        return "\nserverIP: "+  TCPIP.get(0) + "\nclientIP: " + TCPIP.get(1);
+    }
+
+    public void setTcpIP(String serverIP, String clientIP) {
+        TCPIP.clear();
+        TCPIP.add(serverIP);
+        TCPIP.add(clientIP);
+    }
+
+
 
     public MusicManager getMusicManager() {
         if (musicManager == null) {
@@ -105,6 +115,8 @@ public class MusicPlayerDashboard implements ActionListener {
 
         public String tcpClient;
     }
+
+
 
     public TargetMusic targetMusic = new TargetMusic();
 
@@ -274,7 +286,7 @@ public class MusicPlayerDashboard implements ActionListener {
                         System.out.println(latestPosition);
 
                         try {
-                            LrcFileReader.LrcLine lrcLine = getLrcLine(latestPosition);
+                            LrcFileReader.LrcLine lrcLine = getLrcLine(latestPosition * 1000);
                             if (lrcLine != null) {
                                 lyricsRealtimeText.setText(lrcLine.getLyrics());
                             }
@@ -449,6 +461,13 @@ public class MusicPlayerDashboard implements ActionListener {
         });
 
         serverIP = new JFormattedTextField();
+        serverIP.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setTcpIP(serverIP.getText(), clientIP.getText());
+                ConnectTCPMessage.setText("Connecting to " + getTcpIP() + "...");
+            }
+        });
         /*serverIP.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -460,6 +479,13 @@ public class MusicPlayerDashboard implements ActionListener {
         });*/
 
         clientIP = new JFormattedTextField();
+        clientIP.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setTcpIP(serverIP.getText(), clientIP.getText());
+                ConnectTCPMessage.setText("Connecting to " + getTcpIP() + "...");
+            }
+        });
         /*clientIP.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -552,5 +578,8 @@ public class MusicPlayerDashboard implements ActionListener {
 
             }
         });
+
+        ConnectTCPMessage = new JTextPane();
+
     }
 }
