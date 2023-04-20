@@ -236,7 +236,7 @@ public class P2PMusicStreaming {
                     String filepath = recvArr[1];
                     System.out.println("Received availability check for " + filepath);
                     response = new ZMsg();
-                    boolean found = new File(filepath).isFile();
+                    boolean found = musicManager.isPathLocalMusic(filepath);
                     response.add(new byte[]{(byte) (found ? 1 : 0)});
                     response.send(socket);
                     break;
