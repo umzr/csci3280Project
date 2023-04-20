@@ -68,7 +68,7 @@ public class LrcFileReader {
     }
 
     public static void main(String[] args) throws IOException {
-        LrcFileReader reader = new LrcFileReader("src/Album/香港料理.lrc");
+        LrcFileReader reader = new LrcFileReader("src/Album/香港料理Client1.lrc");
         for (LrcLine line : reader.getLrcLines()) {
             System.out.println(line.getTimestamp() + " " + line.getLyrics());
         }
