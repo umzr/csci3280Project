@@ -82,6 +82,12 @@ public class MusicPlayer {
            dataLine.start();
            byte[] data = new byte[bufferSize];
            try {
+               if(streamer != null){
+                   while (streamer.getLastFedChunkNumber() < 5){
+                       // wait until the stream has fed with 5 chunks
+                       Thread.sleep(500);
+                   }
+               }
                int dataRead;
                while((dataRead = inputStream.read(data)) != -1){
                    currentPos += dataRead;
@@ -125,7 +131,7 @@ public class MusicPlayer {
                 return CompletableFuture.supplyAsync(() -> app.getOnlinePeers(app.getTrackerAddress()))
                         .handle((peers, ex) -> {
                             if(ex != null) return false;
-                            MusicPlayer.this.streamer = new MusicStreamer(app, property.path, peers);
+                            MusicPlayer.this.streamer = new MusicStreamer(app, property, peers);
                             streamer.streamingJobs();
                             inputStream = streamer.getAudioStream();
                             return true;

@@ -30,6 +30,10 @@ public class MusicManager {
         return musicInfoLocal;
     }
 
+    public boolean isPathLocalMusic(String path){
+        return musicInfoLocal.stream().anyMatch(property -> property.path.replace('\\', '/').equals(path.replace('\\','/')));
+    }
+
     public void setMusicInfo(ArrayList<MusicProperty> musicInfo) {
         this.musicInfoNetwork = musicInfo;
     }

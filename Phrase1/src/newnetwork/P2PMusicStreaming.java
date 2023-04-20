@@ -147,9 +147,18 @@ public class P2PMusicStreaming {
 
     public void registerWithTracker(String trackerAddress) {
         ZMQ.Socket socket = context.createSocket(ZMQ.REQ);
+        socket.setSendTimeOut(10000);
+        socket.setReceiveTimeOut(10000);
         socket.connect(trackerAddress);
-        socket.send("REGISTER:" + this.getClientAddress());
+        if(!socket.send("REGISTER:" + this.getClientAddress())){
+            socket.close();
+            throw new RuntimeException(String.format("Connection error: %s", ZMQ.Error.findByCode(socket.errno()).getMessage()));
+        }
         String response = socket.recvStr();
+        if(response == null){
+            socket.close();
+            throw new RuntimeException(String.format("Connection error: %s", ZMQ.Error.findByCode(socket.errno()).getMessage()));
+        }
         if ("OK".equals(response)) {
             this.trackerAddress = trackerAddress;
             System.out.println("Registered with tracker successfully.");
@@ -227,7 +236,7 @@ public class P2PMusicStreaming {
                     String filepath = recvArr[1];
                     System.out.println("Received availability check for " + filepath);
                     response = new ZMsg();
-                    boolean found = new File(filepath).isFile();
+                    boolean found = musicManager.isPathLocalMusic(filepath);
                     response.add(new byte[]{(byte) (found ? 1 : 0)});
                     response.send(socket);
                     break;
@@ -330,15 +339,6 @@ public class P2PMusicStreaming {
             e.printStackTrace();
         }
         return "0";
-    }
-
-    public void playAudioInterleaved(String fileName, List<String> peerAddresses) {
-        // Request different chunks of the audio file from different peers
-        // For simplicity, we assume only two peers and two chunks
-        byte[] chunk1 = requestAudioChunk(peerAddresses.get(0), fileName, 1);
-        byte[] chunk2 = requestAudioChunk(peerAddresses.get(1), fileName, 2);
-
-        // Combine the chunks and play the audio (omitted for simplicity)
     }
 
     public byte[] requestAudioChunk(String targetPeerAddress, String fileName, int chunkIndex) {
