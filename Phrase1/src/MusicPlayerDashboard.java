@@ -283,7 +283,11 @@ public class MusicPlayerDashboard implements ActionListener {
                         String endTime = getFormattedTimeMs((int) targetMusic.duration * 1000);
                         String startTime = getFormattedTimeMs(latestPosition * 1000);
                         musicTime.setText(startTime + " / " + endTime);
-                        System.out.println(latestPosition);
+                        System.out.println("SwingWorker, process(): "+latestPosition);
+                        if(latestPosition < 1){
+                            //clear last song realtime lrc
+                            lyricsRealtimeText.setText("");
+                        }
 
                         try {
                             LrcFileReader.LrcLine lrcLine = getLrcLine(latestPosition * 1000);

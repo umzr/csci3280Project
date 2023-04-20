@@ -79,6 +79,9 @@ public class P2PMusicStreaming {
         String trackerAddress = scanner.nextLine();
         System.out.println("Enter your peer address (e.g., tcp://localhost:5555):");
         String bindAddress = scanner.nextLine();
+        if(trackerAddress.equals("")){
+            trackerAddress = "tcp://localhost:5555";
+        }
 
         // Register with the tracker server
         app.setClientAddress(bindAddress);
