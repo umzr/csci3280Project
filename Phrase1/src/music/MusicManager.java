@@ -105,7 +105,10 @@ public class MusicManager {
             File file = new File(wavFiles.get(i));
             try {
                 AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
-                AudioFormat format = audioInputStream.getFormat();
+                AudioFormat format = MusicReader.getAudioFormat(file.getPath());
+                // We use the format reader written ourselves first to fulfill requirement,
+                // unless our method fail to do so.
+                if(format == null) format = audioInputStream.getFormat();
 
                 MusicProperty property = new MusicProperty();
                 property.title = file.getName();
