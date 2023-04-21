@@ -22,9 +22,9 @@ CLASSES = \
 	InterleavingBitmaps.java \
 	MusicDecoding.java
 
-# MAIN_CLASS = InterleavingBitmaps
+MAIN_CLASS = InterleavingBitmaps
 # MAIN_CLASS = networking/TrackerServer
-MAIN_CLASS = MusicPlayerDashboard
+# MAIN_CLASS = MusicPlayerDashboard
 MANIFEST = manifest.txt
 
 default: classes
