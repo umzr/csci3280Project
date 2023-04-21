@@ -1,4 +1,4 @@
-package newnetwork;
+package networking;
 
 import java.util.HashMap;
 import java.util.List;

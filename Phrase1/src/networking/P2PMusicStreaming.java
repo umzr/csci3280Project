@@ -1,4 +1,4 @@
-package newnetwork;
+package networking;
 
 import music.MusicManager;
 import music.MusicProperty;

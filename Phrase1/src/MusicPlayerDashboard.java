@@ -1,7 +1,7 @@
 import music.MusicManager;
 import music.MusicPlayer;
 import music.MusicProperty;
-import newnetwork.P2PMusicStreaming;
+import networking.P2PMusicStreaming;
 
 import javax.sound.sampled.*;
 import javax.swing.*;

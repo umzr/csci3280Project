@@ -1,13 +1,10 @@
-package newnetwork;
+package networking;
 
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
-import org.zeromq.ZMsg;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class TrackerServer {

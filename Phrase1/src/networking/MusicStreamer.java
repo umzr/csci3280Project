@@ -1,4 +1,4 @@
-package newnetwork;
+package networking;
 
 import music.MusicProperty;
 
@@ -7,7 +7,6 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MusicStreamer {
     private final String file;

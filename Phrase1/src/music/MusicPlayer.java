@@ -1,7 +1,7 @@
 package music;
 
-import newnetwork.MusicStreamer;
-import newnetwork.P2PMusicStreaming;
+import networking.MusicStreamer;
+import networking.P2PMusicStreaming;
 
 import javax.sound.sampled.*;
 import java.io.File;
