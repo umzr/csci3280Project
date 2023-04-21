@@ -118,22 +118,22 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <component id="8d313" class="javax.swing.JLabel" binding="CSVPath">
+                      <component id="8d313" class="javax.swing.JLabel" binding="downloadPath">
                         <constraints border-constraint="West"/>
                         <properties>
-                          <text value="USER Name"/>
+                          <text value="Download Path:"/>
                         </properties>
                       </component>
                       <component id="f73dc" class="javax.swing.JFormattedTextField" binding="ClientName" custom-create="true">
                         <constraints border-constraint="Center"/>
                         <properties>
-                          <text value="client1"/>
+                          <text value="./src/ClientMusic/client1/"/>
                         </properties>
                       </component>
-                      <component id="14dfa" class="javax.swing.JButton" binding="NOUSEButton" default-binding="true">
+                      <component id="14dfa" class="javax.swing.JButton" binding="downloadBtn">
                         <constraints border-constraint="East"/>
                         <properties>
-                          <text value="NOUSE"/>
+                          <text value="DOWNLOAD!"/>
                         </properties>
                       </component>
                     </children>
