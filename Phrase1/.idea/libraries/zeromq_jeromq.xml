@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="zeromq.jeromq" type="repository">
+    <properties maven-id="org.zeromq:jeromq:0.5.3" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jeromq-0.5.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jnacl-1.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/jeromq-0.5.3-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jnacl-1.0.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/jeromq-0.5.3-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jnacl-1.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
