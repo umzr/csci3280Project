@@ -58,6 +58,10 @@ public class MusicPlayer {
         });
     }
 
+    public MusicProperty getMusicPlaying(){
+        return musicPlaying;
+    }
+
     public void setVolume(float volumeLinear){
         if(volumeLinear <= 0){
             volumeDb = -10000;
@@ -91,7 +95,9 @@ public class MusicPlayer {
                int dataRead;
                while((dataRead = inputStream.read(data)) != -1){
                    currentPos += dataRead;
-                   while(!playing) wait(500);
+                   while(!playing) {
+                       Thread.sleep(500);
+                   }
                    dataLine.write(data, 0, data.length);
                }
            } catch (IOException e) {
@@ -109,6 +115,14 @@ public class MusicPlayer {
 
     public boolean isPlaying() {
         return playing;
+    }
+
+    public void pause(){
+        playing = false;
+    }
+
+    public void resume(){
+        playing = true;
     }
 
     public boolean isOpen(){

@@ -13,6 +13,7 @@ public class MusicStreamer {
     private final MusicProperty property;
     private final List<String> peerAddress;
     private final P2PMusicStreaming app;
+    private int pipeSize;
     private PipedInputStream audioStream;
     private PipedOutputStream chunkFeedingStream;
     private PriorityQueue<QueuedChunkWrapper> queuedChunks = new PriorityQueue<>();
@@ -29,7 +30,9 @@ public class MusicStreamer {
         this.peerAddress = peerAddress;
         chunkFeedingStream = new PipedOutputStream();
         try {
-            audioStream = new PipedInputStream(chunkFeedingStream, (int) (property.bits / 8 * property.channels * property.rate) * 10 );
+            int pipeSize = (int) (property.bits / 8 * property.channels * property.rate) * 10;
+            audioStream = new PipedInputStream(chunkFeedingStream, pipeSize);
+            this.pipeSize = pipeSize;
             open = true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -71,28 +74,50 @@ public class MusicStreamer {
                                 hasRunning = true;
                                 if (firstWrapper.chunkNum == lastFedChunkNumber + 1) {
                                     try {
-                                        chunkFeedingStream.write(firstWrapper.getBuffer());
-                                        lastFedChunkNumber++;
-                                        queuedChunks.poll();
+                                        if(audioStream.available() != pipeSize){
+                                            chunkFeedingStream.write(firstWrapper.getBuffer());
+                                            lastFedChunkNumber++;
+                                            queuedChunks.poll();
+                                        }
                                     } catch (IOException e) {
                                         break;
                                     }
                                 }
                             }
                             List<String> address = this.peerAddress;
+                            if(queuedChunks.size() > 10) {
+                                if(firstWrapper != null && firstWrapper.chunkNum > lastFedChunkNumber + 1){
+                                    allocator.assignJob(address.get(0), lastFedChunkNumber + 1);
+                                    StreamingPeerStatus peerStatus = statuses.get(address.get(0));
+                                    if (peerStatus.isReadyForNextRequest()) {
+                                        Integer chunkIdx = lastFedChunkNumber + 1;
+                                        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
+                                            var audioChunk = app.requestAudioChunk(address.get(0), this.file, chunkIdx);
+                                            if(audioChunk.length == 0){
+                                                peerStatus.ended = true;
+                                            }
+                                            else{
+                                                queuedChunks.add(new QueuedChunkWrapper(chunkIdx, audioChunk));
+                                            }
+                                        });
+                                        peerStatus.lastFuture = completableFuture;
+                                    }
+                                }
+                                continue;
+                            }
                             for (int i = 0; i < address.size(); i++) {
                                 String peer = address.get(i);
                                 if (!statuses.containsKey(peer)) {
                                     statuses.put(peer, new StreamingPeerStatus());
                                 }
-                                var peerStatus = statuses.get(peer);
+                                StreamingPeerStatus peerStatus = statuses.get(peer);
                                 if (peerStatus.ended) continue;
                                 hasRunning = true;
                                 if (peerStatus.isReadyForNextRequest()) {
                                     Integer chunkIdx = allocator.getNextJob(peer);
                                     if(chunkIdx == null) peerStatus.ended = true;
                                     else{
-                                        var completableFuture = CompletableFuture.runAsync(() -> {
+                                        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
                                             var audioChunk = app.requestAudioChunk(peer, this.file, chunkIdx);
                                             if(audioChunk.length == 0){
                                                 peerStatus.ended = true;

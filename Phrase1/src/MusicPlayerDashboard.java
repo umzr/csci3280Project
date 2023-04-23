@@ -43,7 +43,7 @@ public class MusicPlayerDashboard implements ActionListener {
     private JEditorPane selectedMusicBox;
     private JPanel SelectedPanel;
     private JTextArea lyricsDisplay;
-    private JEditorPane musicTime;
+    private JLabel musicTime;
     private JButton SearchButton;
     private JTextField SearchText;
     private JFormattedTextField lyricsRealtimeText;
@@ -125,6 +125,11 @@ public class MusicPlayerDashboard implements ActionListener {
         this.targetMusic = targetMusic;
     }
 
+    public String fillNoneForEmpty(String str){
+        if(str == null || str.isEmpty() || str.isBlank()) return "(None)";
+        return str;
+    }
+
     public void loadLibraryTableFromSearch(ArrayList<MusicProperty> musicProperties) {
         LibraryTableModel.setRowCount(0);
         musicManager.setMusicInfo(musicProperties);
@@ -150,15 +155,15 @@ public class MusicPlayerDashboard implements ActionListener {
         for (MusicProperty musicProperty : musicManager.getMusicInfo()) {
             LibraryTableModel.addRow(new Object[] {
                     musicProperty.title,
-                    musicProperty.duration,
-                    musicProperty.artist,
+                    getFormattedTimeMs((int) (musicProperty.duration * 1000)),
+                    fillNoneForEmpty(musicProperty.artist),
                     musicProperty.channels,
                     musicProperty.rate,
                     musicProperty.bits,
-                    musicProperty.album,
-                    musicProperty.genre,
-                    musicProperty.year,
-                    musicProperty.comment,
+                    fillNoneForEmpty(musicProperty.album),
+                    fillNoneForEmpty(musicProperty.genre),
+                    fillNoneForEmpty(musicProperty.year),
+                    fillNoneForEmpty(musicProperty.comment),
                     !musicProperty.ftpPath.equals(clientIPaddress) ? musicProperty.ftpPath : ""
             });
         }
@@ -245,12 +250,25 @@ public class MusicPlayerDashboard implements ActionListener {
     public void actionPerformed(ActionEvent event) {
         if (event.getSource() == startButton) {
             try {
+                if (targetMusic.property.equals(player.getMusicPlaying())) {
+                    if (player.isPlaying()) {
+                        player.pause();
+                        startButton.setText("Play");
+                        return;
+                    }
+                    else if(player.isOpen()){
+                        player.resume();
+                        startButton.setText("Pause");
+                        return;
+                    }
+                }
 
                 if(player.isPlaying()){
                     player.stop();
                 }
 
                 player.startPlayMusic(targetMusic.property, isMusicLocal(targetMusic));
+                startButton.setText("Pause");
 
                 // Set the maximum value of the progress bar to the length of the audio file
                 musicProgressBar.setMaximum((int) targetMusic.duration);
@@ -262,12 +280,7 @@ public class MusicPlayerDashboard implements ActionListener {
                     @Override
                     protected Void doInBackground() throws Exception {
                         System.out.println("latestPosition");
-                        boolean oncePlayed = false;
                         while (player.isOpen()) {
-                            if (oncePlayed && !player.isPlaying())
-                                break;
-                            if (!oncePlayed && player.isPlaying())
-                                oncePlayed = true;
                             int position = (int) player.getCurrentTime();
                             publish(position); // publish the position to update the progress bar on the EDT
                             Thread.sleep(1000);
@@ -313,6 +326,7 @@ public class MusicPlayerDashboard implements ActionListener {
             player.close();
             musicProgressBar.setValue(0);
             musicTime.setText("0:00 / 0:00");
+            startButton.setText("Play");
         }
     }
 
@@ -527,7 +541,9 @@ public class MusicPlayerDashboard implements ActionListener {
                         setApp(app);
                         syncMusicInfo();
                         app.setMusicManager(getMusicManager());
+                        P2PSync.setEnabled(true);
                     } catch (RuntimeException ex) {
+                        P2PSync.setEnabled(false);
                         JOptionPane.showMessageDialog(rootFrame, "cannot connect to tracker server");
                     }
                 }else{
