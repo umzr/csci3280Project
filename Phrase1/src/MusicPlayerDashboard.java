@@ -185,12 +185,17 @@ public class MusicPlayerDashboard implements ActionListener {
         panel1.add(SyncMessage, BorderLayout.WEST);
         SYNCButton.setText("SYNC!");
         panel1.add(SYNCButton, BorderLayout.EAST);
-        P2PSync.setText("P2PSycn");
+        P2PSync.setEnabled(false);
+        P2PSync.setText("P2PSync");
         panel1.add(P2PSync, BorderLayout.NORTH);
         LibraryLocationPath.setText("./src/ClientMusic/client1");
         panel1.add(LibraryLocationPath, BorderLayout.CENTER);
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new BorderLayout(0, 0));
+        panel2.setEnabled(false);
+        panel2.setFocusable(false);
+        panel2.setOpaque(true);
+        panel2.setVisible(false);
         panel1.add(panel2, BorderLayout.SOUTH);
         downloadPath = new JLabel();
         downloadPath.setText("Download Path:");
@@ -205,7 +210,8 @@ public class MusicPlayerDashboard implements ActionListener {
         LibraryTab.add(panel3, BorderLayout.NORTH);
         SearchText.setEditable(true);
         SearchText.setEnabled(true);
-        SearchText.setText("Search Here");
+        SearchText.setText("");
+        SearchText.setToolTipText("");
         panel3.add(SearchText, BorderLayout.CENTER);
         SearchButton.setText("Search!");
         panel3.add(SearchButton, BorderLayout.EAST);
@@ -269,24 +275,26 @@ public class MusicPlayerDashboard implements ActionListener {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 5;
+        gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         MusicPlayer.add(SelectedPanel, gbc);
-        musicTime = new JEditorPane();
-        musicTime.setEditable(false);
+        musicTime = new JLabel();
+        musicTime.setText("0:00 / 0:00");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.weightx = 0.2;
+        gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.insets = new Insets(0, 5, 0, 5);
         SelectedPanel.add(musicTime, gbc);
         selectedMusicBox.setEditable(false);
         selectedMusicBox.setText("You Have Not Select Any Music");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 0;
-        gbc.weightx = 0.8;
+        gbc.weightx = 0.5;
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(0, 5, 0, 0);
@@ -299,7 +307,7 @@ public class MusicPlayerDashboard implements ActionListener {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         MusicPlayer.add(backButton, gbc);
         startButton = new JButton();
-        startButton.setText("Start");
+        startButton.setText("Play");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 2;
@@ -353,8 +361,8 @@ public class MusicPlayerDashboard implements ActionListener {
         this.targetMusic = targetMusic;
     }
 
-    public String fillNoneForEmpty(String str){
-        if(str == null || str.isEmpty() || str.isBlank()) return "(None)";
+    public String fillNoneForEmpty(String str) {
+        if (str == null || str.isEmpty() || str.isBlank()) return "(None)";
         return str;
     }
 
@@ -460,7 +468,7 @@ public class MusicPlayerDashboard implements ActionListener {
     }
 
     private void init() {
-       
+
 
         rootFrame = new JFrame("MusicPlayerDashboard");
         rootFrame.setContentPane(this.MusicPlayer);
@@ -487,8 +495,7 @@ public class MusicPlayerDashboard implements ActionListener {
                         player.pause();
                         startButton.setText("Play");
                         return;
-                    }
-                    else if(player.isOpen()){
+                    } else if (player.isOpen()) {
                         player.resume();
                         startButton.setText("Pause");
                         return;
