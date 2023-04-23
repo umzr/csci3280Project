@@ -5,8 +5,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e24c98a1-7b91-49dc-836d-45f21307c911" name="Changes" comment="not working in progress bar">
+      <change afterPath="$PROJECT_DIR$/lib/forms_rt-7.0.3.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/InterleavingBitmaps$BitmapSender.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/InterleavingBitmaps.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/LrcFileReader$LrcLine.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/LrcFileReader.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicDecoding.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$10.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$2.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$3.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$4.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$5.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$6.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$7.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$8.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$9.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard$TargetMusic.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/SongProperty.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/music/MusicManager.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/music/MusicPlayer.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/music/MusicProperty.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/music/MusicReader.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/networking/InterleaveJobAllocator.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/networking/MusicStreamer$QueuedChunkWrapper.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/networking/MusicStreamer$StreamingPeerStatus.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/networking/MusicStreamer.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/networking/P2PMusicStreaming.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/networking/TrackerServer.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/p2pDemo/interleaved_bitmap.bmp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/makefile" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MusicPlayerDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MusicPlayerDashboard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/music/MusicProperty.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/music/MusicProperty.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,34 +88,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;true&quot;,
-    &quot;Repository.Attach.Annotations&quot;: &quot;true&quot;,
-    &quot;Repository.Attach.JavaDocs&quot;: &quot;true&quot;,
-    &quot;Repository.Attach.Sources&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH&quot;: &quot;334&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;11&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/github/csci3280Project/Phrase1&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Global Libraries&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Downloaded.Files.Path.Enabled": "true",
+    "Repository.Attach.Annotations": "false",
+    "Repository.Attach.JavaDocs": "true",
+    "Repository.Attach.Sources": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH": "334",
+    "WebServerToolWindowFactoryState": "false",
+    "jdk.selected.JAVA_MODULE": "11",
+    "last_opened_file_path": "E:/github/csci3280Project/Phrase1",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "project.propGUI",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\github\csci3280Project\Phrase1\src\ClientMusic\client2" />
       <recent name="$PROJECT_DIR$/src/Album" />
     </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
@@ -142,6 +174,8 @@
       <workItem from="1681285971288" duration="1968000" />
       <workItem from="1681302634350" duration="854000" />
       <workItem from="1681466682173" duration="9974000" />
+      <workItem from="1682070448447" duration="1642000" />
+      <workItem from="1682084266094" duration="1035000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <created>1678599706358</created>
