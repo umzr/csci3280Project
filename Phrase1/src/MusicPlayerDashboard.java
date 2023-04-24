@@ -137,7 +137,7 @@ public class MusicPlayerDashboard implements ActionListener {
         HomeTab.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         MusicPlayerFeature.addTab("Home", HomeTab);
         HomePageText = new JLabel();
-        HomePageText.setText("This is CSCI33280 Project");
+        HomePageText.setText("This is CSCI3280 Project");
         HomeTab.add(HomePageText);
         Music = new JPanel();
         Music.setLayout(new GridBagLayout());
@@ -163,7 +163,7 @@ public class MusicPlayerDashboard implements ActionListener {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         Music.add(lyricsRealtimeText, gbc);
         lyricsRealtimeLabel = new JLabel();
-        lyricsRealtimeLabel.setText("Lryics realtime:");
+        lyricsRealtimeLabel.setText("Lyrics realtime:");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;

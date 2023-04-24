@@ -27,7 +27,7 @@
               <component id="611ef" class="javax.swing.JLabel" binding="HomePageText">
                 <constraints/>
                 <properties>
-                  <text value="This is CSCI33280 Project"/>
+                  <text value="This is CSCI3280 Project"/>
                 </properties>
               </component>
             </children>
@@ -71,7 +71,7 @@
                   <gridbag weightx="0.0" weighty="0.0"/>
                 </constraints>
                 <properties>
-                  <text value="Lryics realtime:"/>
+                  <text value="Lyrics realtime:"/>
                 </properties>
               </component>
             </children>
