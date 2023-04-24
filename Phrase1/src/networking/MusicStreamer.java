@@ -2,6 +2,7 @@ package networking;
 
 import music.MusicProperty;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -25,7 +26,7 @@ public class MusicStreamer {
 
     public MusicStreamer(P2PMusicStreaming app, MusicProperty property, List<String> peerAddress){
         this.app = app;
-        this.file = property.path;
+        this.file = new File(property.path).getName();
         this.property = property;
         this.peerAddress = peerAddress;
         chunkFeedingStream = new PipedOutputStream();
@@ -138,17 +139,20 @@ public class MusicStreamer {
                                 break;
                         }
                     }
-                    try {
-                        this.audioStream.close();
-                        open = false;
-                        this.chunkFeedingStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
 
                 });
         this.streamingTask = task;
         return task;
+    }
+
+    public void close(){
+        try {
+            this.audioStream.close();
+            open = false;
+            this.chunkFeedingStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isOpen(){

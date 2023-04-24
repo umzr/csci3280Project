@@ -26,7 +26,7 @@ public class MusicPlayer {
 
     public MusicPlayer(Supplier<P2PMusicStreaming> networkApp){
         this.networkAppGetter = networkApp;
-        bufferSize = 44100;
+        bufferSize = 1024;
     }
 
     public void stop(){
@@ -35,11 +35,17 @@ public class MusicPlayer {
             playingTask = null;
         }
         if(inputStream != null){
-            try {
-                inputStream.close();
-                inputStream = null;
-            } catch (IOException e) {
+            if(streamer != null){
+                streamer.close();
+                streamer = null;
+            }
+            else {
+                try {
+                    inputStream.close();
+                    inputStream = null;
+                } catch (IOException e) {
 
+                }
             }
         }
         playing = false;
@@ -84,6 +90,7 @@ public class MusicPlayer {
            playing = true;
            currentPos = 0;
            dataLine.start();
+           tryApplyVolume();
            byte[] data = new byte[bufferSize];
            try {
                if(streamer != null){
@@ -93,7 +100,16 @@ public class MusicPlayer {
                    }
                }
                int dataRead;
-               while((dataRead = inputStream.read(data)) != -1){
+               while(true){
+                   if(inputStream.available() == 0){
+                       if(streamer != null && streamer.getStreamingTask().isDone()) break;
+                       else {
+                           Thread.sleep(100);
+                           continue;
+                       }
+                   }
+                   dataRead = inputStream.read(data);
+                   if(dataRead == -1) break;
                    currentPos += dataRead;
                    while(!playing) {
                        Thread.sleep(500);
@@ -167,11 +183,17 @@ public class MusicPlayer {
             volumeCtrl = null;
             playingTask = null;
             if(inputStream != null) {
-                try {
-                    inputStream.close();
-                    inputStream = null;
-                } catch (IOException e) {
+                if(streamer != null){
+                    streamer.close();
+                    streamer = null;
+                }
+                else {
+                    try {
+                        inputStream.close();
+                        inputStream = null;
+                    } catch (IOException e) {
 
+                    }
                 }
             }
         }

@@ -27,20 +27,16 @@ public class MusicPlayerDashboard implements ActionListener {
     private JTabbedPane MusicPlayerFeature;
     private JPanel HomeTab;
     private JPanel LibraryTab;
-    private JPanel SearchTab;
-    private JPanel InfoTab;
     private JButton backButton;
     private JButton startButton;
     private JButton lyricsButton;
     private JButton stopButton;
     private JSlider volumeSlider;
     private JProgressBar musicProgressBar;
-    private JTextArea MusicInfo;
-    private JTextPane textPane1;
     private JTable libraryTable;
     private JPanel MusicPlayer;
     private JPanel Music;
-    private JFormattedTextField HomePageText;
+    private JLabel HomePageText;
     private JButton SYNCButton;
     private JLabel SyncMessage;
     private JScrollPane LibraryScroll;
@@ -140,12 +136,12 @@ public class MusicPlayerDashboard implements ActionListener {
         HomeTab = new JPanel();
         HomeTab.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         MusicPlayerFeature.addTab("Home", HomeTab);
-        HomePageText = new JFormattedTextField();
+        HomePageText = new JLabel();
         HomePageText.setText("This is CSCI33280 Project");
         HomeTab.add(HomePageText);
         Music = new JPanel();
         Music.setLayout(new GridBagLayout());
-        MusicPlayerFeature.addTab("Music", Music);
+        MusicPlayerFeature.addTab("Lyrics", Music);
         final JScrollPane scrollPane1 = new JScrollPane();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -218,28 +214,6 @@ public class MusicPlayerDashboard implements ActionListener {
         LibraryScroll = new JScrollPane();
         LibraryTab.add(LibraryScroll, BorderLayout.CENTER);
         LibraryScroll.setViewportView(libraryTable);
-        SearchTab = new JPanel();
-        SearchTab.setLayout(new GridBagLayout());
-        MusicPlayerFeature.addTab("Search", SearchTab);
-        textPane1 = new JTextPane();
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        SearchTab.add(textPane1, gbc);
-        InfoTab = new JPanel();
-        InfoTab.setLayout(new GridBagLayout());
-        MusicPlayerFeature.addTab("Info", InfoTab);
-        MusicInfo = new JTextArea();
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        InfoTab.add(MusicInfo, gbc);
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new BorderLayout(0, 0));
         MusicPlayerFeature.addTab("P2P", panel4);
@@ -524,6 +498,7 @@ public class MusicPlayerDashboard implements ActionListener {
                             publish(position); // publish the position to update the progress bar on the EDT
                             Thread.sleep(1000);
                         }
+                        startButton.setText("Play");
                         return null;
                     }
 
@@ -778,6 +753,7 @@ public class MusicPlayerDashboard implements ActionListener {
                         app = P2PMusicStreaming.run(serverIPaddress, clientIPaddress);
                         setApp(app);
                         syncMusicInfo();
+                        loadLibraryTable();
                         app.setMusicManager(getMusicManager());
                         P2PSync.setEnabled(true);
                     } catch (RuntimeException ex) {

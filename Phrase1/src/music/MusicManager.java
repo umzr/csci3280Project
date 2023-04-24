@@ -16,6 +16,7 @@ public class MusicManager {
     private ArrayList<String> wavFiles = new ArrayList<String>();
     private ArrayList<MusicProperty> musicInfoLocal = new ArrayList<>();
     private ArrayList<MusicProperty> musicInfoNetwork = new ArrayList<>();
+    private String libraryPath;
 
     public List<MusicProperty> getMusicInfo() {
         LinkedHashSet<MusicProperty> musicInfoSet = new LinkedHashSet<>(musicInfoLocal);
@@ -32,6 +33,19 @@ public class MusicManager {
 
     public boolean isPathLocalMusic(String path){
         return musicInfoLocal.stream().anyMatch(property -> property.path.replace('\\', '/').equals(path.replace('\\','/')));
+    }
+
+    public boolean isFilenameLocalMusic(String fname){
+        return musicInfoLocal.stream().anyMatch(property -> new File(property.path).getName().equals(fname));
+    }
+
+    public MusicProperty getLocalMusicFromFilename(String fname){
+        for (MusicProperty property : musicInfoLocal) {
+            if(new File(property.path).getName().equals(fname)){
+                return property;
+            }
+        }
+        return null;
     }
 
     public void setMusicInfo(ArrayList<MusicProperty> musicInfo) {
@@ -57,7 +71,12 @@ public class MusicManager {
         }
     }
 
+    public String getLibraryPath() {
+        return libraryPath;
+    }
+
     private void searchMusicPaths(String root) {
+        this.libraryPath = root;
         File file = new File(root);
         if (file.isDirectory()) {
             File[] files = file.listFiles();

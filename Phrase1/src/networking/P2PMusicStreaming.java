@@ -239,7 +239,7 @@ public class P2PMusicStreaming {
                     String filepath = recvArr[1];
                     System.out.println("Received availability check for " + filepath);
                     response = new ZMsg();
-                    boolean found = musicManager.isPathLocalMusic(filepath);
+                    boolean found = musicManager.isFilenameLocalMusic(filepath);
                     response.add(new byte[]{(byte) (found ? 1 : 0)});
                     response.send(socket);
                     break;
@@ -326,20 +326,23 @@ public class P2PMusicStreaming {
 
     private String getAudioChunks(String fileName, int chunk) {
         // Load and divide the audio file into smaller chunks
-        try(AudioInputStream ais = AudioSystem.getAudioInputStream(new File(fileName))) {
-            ais.skip((long) (chunk * ais.getFormat().getFrameSize() * ais.getFormat().getSampleRate()));
-            byte[] data = new byte[Math.toIntExact((long) (ais.getFormat().getFrameSize() * ais.getFormat().getSampleRate()))];
-            int readed = ais.read(data);
-            if(readed < 0) return "0";
-            if(readed != data.length){
-                byte[] tmp = data;
-                data = new byte[readed];
-                System.arraycopy(tmp, 0, data, 0, readed);
+        MusicProperty musicProperty = musicManager.getLocalMusicFromFilename(fileName);
+        if(musicProperty != null) {
+            try(AudioInputStream ais = AudioSystem.getAudioInputStream(new File(musicProperty.path))) {
+                ais.skip((long) (chunk * ais.getFormat().getFrameSize() * ais.getFormat().getSampleRate()));
+                byte[] data = new byte[Math.toIntExact((long) (ais.getFormat().getFrameSize() * ais.getFormat().getSampleRate()))];
+                int readed = ais.read(data);
+                if(readed < 0) return "0";
+                if(readed != data.length){
+                    byte[] tmp = data;
+                    data = new byte[readed];
+                    System.arraycopy(tmp, 0, data, 0, readed);
+                }
+                byte[] compressed = compress(data);
+                return Base64.getEncoder().encodeToString(compressed);
+            } catch (UnsupportedAudioFileException | IOException e) {
+                e.printStackTrace();
             }
-            byte[] compressed = compress(data);
-            return Base64.getEncoder().encodeToString(compressed);
-        } catch (UnsupportedAudioFileException | IOException e) {
-            e.printStackTrace();
         }
         return "0";
     }
